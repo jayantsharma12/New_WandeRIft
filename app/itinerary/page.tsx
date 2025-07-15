@@ -34,7 +34,6 @@ export default function ItineraryPage() {
   const searchParams = useSearchParams()
   const [generatedData, setGeneratedData] = useState<GeneratedItinerary | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-
   const destination = searchParams.get("destination") || ""
   const days = Number.parseInt(searchParams.get("days") || "0")
   const budget = searchParams.get("budget") || ""
@@ -43,6 +42,7 @@ export default function ItineraryPage() {
 
   useEffect(() => {
     const storedItinerary = sessionStorage.getItem("generatedItinerary")
+
     if (storedItinerary) {
       try {
         const parsed = JSON.parse(storedItinerary)
@@ -51,6 +51,7 @@ export default function ItineraryPage() {
         console.error("Error parsing stored itinerary:", error)
       }
     }
+
     setIsLoading(false)
   }, [])
 
@@ -67,7 +68,7 @@ export default function ItineraryPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-4xl font-bold text-gray-900">Your AI-Generated Adventure Itinerary</h1>
+            <h1 className="text-4xl font-bold text-gray-900">Your Mountain Adventure Itinerary</h1>
             <Button asChild className="bg-orange-500 hover:bg-orange-600">
               <Link href="/planner">Plan Another Trip</Link>
             </Button>
@@ -177,7 +178,10 @@ export default function ItineraryPage() {
                   </div>
                 )) || (
                   <div className="text-center py-12">
-                    <p className="text-gray-500">No detailed itinerary available. Please try generating a new one.</p>
+                    <p className="text-gray-500 mb-4">No itinerary data available.</p>
+                    <Button asChild className="bg-orange-500 hover:bg-orange-600">
+                      <Link href="/planner">Generate New Itinerary</Link>
+                    </Button>
                   </div>
                 )}
               </CardContent>
@@ -271,3 +275,9 @@ export default function ItineraryPage() {
     </div>
   )
 }
+// Note: The code below is commented out as it was part of the original file but not used in the final implementation.
+//    // This code handles the POST request to generate an itinerary using the Google Gemini API.
+//    // It validates the input, constructs a detailed prompt, and processes the AI response.
+//    // If any errors occur, it returns appropriate error messages.
+//    // Make sure to set the GOOGLE_GEMINI_API_KEY environment variable before using this API.
+//    // The response includes the generated itinerary, educational highlights, cultural insights, and recommended reading    

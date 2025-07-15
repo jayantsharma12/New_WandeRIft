@@ -35,7 +35,6 @@ export default function PlannerPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
-
   const [formData, setFormData] = useState<FormData>({
     destination: "",
     days: "",
@@ -103,8 +102,15 @@ export default function PlannerPage() {
       const result = await response.json()
 
       if (result.success) {
+        // Store the generated itinerary data
         sessionStorage.setItem("generatedItinerary", JSON.stringify(result.data))
 
+        // Store any API notes
+        if (result.note) {
+          sessionStorage.setItem("apiNote", result.note)
+        }
+
+        // Navigate to itinerary page
         const params = new URLSearchParams({
           destination: formData.destination,
           days: formData.days,
@@ -117,9 +123,15 @@ export default function PlannerPage() {
       } else {
         throw new Error(result.error || "Failed to generate itinerary")
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating itinerary:", error)
-      alert("Failed to generate itinerary. Please check your internet connection and try again.")
+
+      // Show specific error message
+      if (error.message && error.message.includes("API key")) {
+        alert("Please configure your Google Gemini API key in the environment variables to use AI features.")
+      } else {
+        alert("Failed to generate itinerary. Please check your internet connection and try again.")
+      }
     } finally {
       setIsGenerating(false)
     }
@@ -252,12 +264,12 @@ export default function PlannerPage() {
               {isGenerating ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" />
-                  Generating Your Adventure with AI...
+                  Generating Your Adventure Itinerary...
                 </>
               ) : (
                 <>
                   <Sparkles className="h-5 w-5 mr-3" />
-                  Generate AI Adventure Itinerary
+                  Generate Adventure Itinerary
                 </>
               )}
             </Button>
