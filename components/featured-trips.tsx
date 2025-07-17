@@ -1,12 +1,43 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, MapPin, Calendar, IndianRupee } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Calendar, IndianRupee, MapPin, Star } from "lucide-react"
 import Link from "next/link"
-import { trips } from "@/lib/data"
+import { useState, useEffect } from "react"
+import { trips as staticTrips } from "@/lib/data"
+
+interface Trip {
+  id: number
+  destination: string
+  rating: number
+  budget: string
+  days: number
+  cost: number
+  interests: string[]
+}
 
 export default function FeaturedTrips() {
-  const featuredTrips = trips.slice(0, 3)
+  const [trips, setTrips] = useState<Trip[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchTrips() {
+      try {
+        const data = await getTrips()
+        setTrips(data.slice(0, 3)) // ✅ Only take top 3 for featured
+      } catch (error) {
+        console.error("Failed to fetch trips:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTrips()
+  }, [])
+
+  if (loading) return <p className="text-center py-10 text-gray-500">Loading featured trips...</p>
 
   return (
     <section className="py-20 bg-gray-50">
@@ -17,7 +48,7 @@ export default function FeaturedTrips() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {featuredTrips.map((trip) => (
+          {trips.map((trip) => (
             <Card key={trip.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300 border-0">
               <div
                 className="h-64 bg-cover bg-center relative"

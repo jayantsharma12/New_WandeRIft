@@ -1,17 +1,21 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { MapPin, Calendar, DollarSign, Star, Filter } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { trips } from "@/lib/data"
-import Link from "next/link"
+import { Calendar, DollarSign, Filter, MapPin, Star } from "lucide-react"
+import Trip from "next/link"
+import { useState } from "react"
+import { staticTrips } from "@/lib/data"
 
 export default function ComparePage() {
-  const [filteredTrips, setFilteredTrips] = useState(trips)
+  // ✅ fallback if trips is undefined
+  const initialTrips = Array.isArray(staticTrips) ? staticTrips : []
+
+  const [filteredTrips, setFilteredTrips] = useState(initialTrips)
   const [selectedTrips, setSelectedTrips] = useState<number[]>([])
   const [filters, setFilters] = useState({
     destination: "",
@@ -24,7 +28,7 @@ export default function ComparePage() {
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
 
-    let filtered = trips
+    let filtered = [...initialTrips]
 
     if (newFilters.destination) {
       filtered = filtered.filter((trip) =>
@@ -55,7 +59,9 @@ export default function ComparePage() {
     }
   }
 
-  const selectedTripData = selectedTrips.map((id) => trips.find((trip) => trip.id === id)!).filter(Boolean)
+  const selectedTripData = selectedTrips
+    .map((id) => initialTrips.find((trip) => trip.id === id))
+    .filter(Boolean)
 
   return (
     <div className="min-h-screen bg-muted/50 py-8">
@@ -75,13 +81,11 @@ export default function ComparePage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <Input
-                  placeholder="Search destination"
-                  value={filters.destination}
-                  onChange={(e) => handleFilterChange("destination", e.target.value)}
-                />
-              </div>
+              <Input
+                placeholder="Search destination"
+                value={filters.destination}
+                onChange={(e) => handleFilterChange("destination", e.target.value)}
+              />
 
               <Select value={filters.budget} onValueChange={(value) => handleFilterChange("budget", value)}>
                 <SelectTrigger>
@@ -125,36 +129,36 @@ export default function ComparePage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {selectedTripData.map((trip) => (
-                  <div key={trip.id} className="border rounded-lg p-4">
+                  <div key={trip!.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-xl font-bold">{trip.destination}</h3>
-                      <Badge variant="secondary">{trip.budget}</Badge>
+                      <h3 className="text-xl font-bold">{trip!.destination}</h3>
+                      <Badge variant="secondary">{trip!.budget}</Badge>
                     </div>
 
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Duration</span>
-                        <span>{trip.days} days</span>
+                        <span>{trip!.days} days</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Cost</span>
-                        <span>₹{trip.cost.toLocaleString()}</span>
+                        <span>₹{trip!.cost.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Rating</span>
                         <div className="flex items-center space-x-1">
                           <Star className="h-4 w-4 fill-current text-yellow-400" />
-                          <span>{trip.rating}</span>
+                          <span>{trip!.rating}</span>
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Interests</span>
-                        <span className="text-sm">{trip.interests.join(", ")}</span>
+                        <span className="text-sm">{trip!.interests.join(", ")}</span>
                       </div>
                     </div>
 
                     <Button asChild className="w-full mt-4">
-                      <Link href={`/trip/${trip.id}`}>View Details</Link>
+                      <Link href={`/trip/${trip!.id}`}>View Details</Link>
                     </Button>
                   </div>
                 ))}
@@ -165,7 +169,7 @@ export default function ComparePage() {
 
         {/* Trip Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTrips.map((trip) => (
+          {(filteredTrips ?? []).map((trip) => (
             <Card
               key={trip.id}
               className={`cursor-pointer transition-all ${
@@ -221,7 +225,7 @@ export default function ComparePage() {
             <Button
               onClick={() => {
                 setFilters({ destination: "", budget: "All Budgets", minRating: "Any Rating", maxCost: "" })
-                setFilteredTrips(trips)
+                setFilteredTrips(initialTrips)
               }}
               className="mt-4"
             >
