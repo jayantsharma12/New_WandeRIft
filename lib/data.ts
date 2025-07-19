@@ -17,7 +17,31 @@ export interface Trip {
   rating: number
   interests: string[]
   itinerary: string[]
+  image_url?: string // New: Optional image URL for the trip
+  total_seats?: number // New: Total available seats
+  booked_seats?: number // New: Number of booked seats
   reviews?: Review[] // Optional, will be fetched separately or joined
+}
+
+export interface PaymentMethod {
+  id: number
+  type: string
+  name: string
+  value: string
+  is_active: boolean
+}
+
+export interface Booking {
+  id?: number
+  trip_id: number
+  user_name: string
+  user_email: string
+  user_phone?: string
+  num_travelers: number
+  payment_method_id?: number
+  payment_screenshot_url?: string
+  booking_status?: string
+  booking_date?: string
 }
 
 /**
@@ -28,7 +52,7 @@ export async function getTrips(): Promise<Trip[]> {
     const { data, error } = await supabase.from("trips").select("*").order("id", { ascending: true })
 
     if (error) {
-      console.error("Supabase error fetching trips:", error) // Added for debugging
+      console.error("Supabase error fetching trips:", error)
       console.error("Error message:", error.message)
       console.error("Error code:", error.code)
       throw new Error(`Failed to fetch trips: ${error.message}`)
@@ -48,7 +72,7 @@ export async function getTripById(id: number): Promise<Trip | null> {
     const { data: tripData, error: tripError } = await supabase.from("trips").select("*").eq("id", id).single()
 
     if (tripError) {
-      console.error(`Supabase error fetching trip with ID ${id}:`, tripError) // Added for debugging
+      console.error(`Supabase error fetching trip with ID ${id}:`, tripError)
       console.error("Error message:", tripError.message)
       console.error("Error code:", tripError.code)
       if (tripError.code === "PGRST116") {
@@ -65,7 +89,7 @@ export async function getTripById(id: number): Promise<Trip | null> {
     const { data: reviewsData, error: reviewsError } = await supabase.from("reviews").select("*").eq("trip_id", id)
 
     if (reviewsError) {
-      console.error(`Supabase error fetching reviews for trip ID ${id}:`, reviewsError) // Added for debugging
+      console.error(`Supabase error fetching reviews for trip ID ${id}:`, reviewsError)
       console.error("Error message:", reviewsError.message)
       console.error("Error code:", reviewsError.code)
       // Still return trip data even if reviews fail
@@ -88,18 +112,20 @@ export async function getAllReviews(): Promise<
   try {
     const { data, error } = await supabase
       .from("reviews")
-      .select(`
+      .select(
+        `
         *,
         trips (
           destination,
           days,
           budget
         )
-      `)
+      `,
+      )
       .order("rating", { ascending: false })
 
     if (error) {
-      console.error("Supabase error fetching all reviews:", error) // Added for debugging
+      console.error("Supabase error fetching all reviews:", error)
       console.error("Error message:", error.message)
       console.error("Error code:", error.code)
       throw new Error(`Failed to fetch reviews: ${error.message}`)
@@ -119,5 +145,68 @@ export async function getAllReviews(): Promise<
   } catch (err) {
     console.error("Caught error in getAllReviews:", err)
     throw err // Re-throw to be caught by calling component
+  }
+}
+
+/**
+ * Fetches all active payment methods.
+ */
+export async function getPaymentMethods(): Promise<PaymentMethod[]> {
+  try {
+    const { data, error } = await supabase.from("payment_methods").select("*").eq("is_active", true)
+
+    if (error) {
+      console.error("Error fetching payment methods:", error.message)
+      throw new Error(`Failed to fetch payment methods: ${error.message}`)
+    }
+    return data as PaymentMethod[]
+  } catch (err) {
+    console.error("Caught error in getPaymentMethods:", err)
+    throw err
+  }
+}
+
+/**
+ * Creates a new booking.
+ */
+export async function createBooking(
+  booking: Omit<Booking, "id" | "booking_date">,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const { data, error } = await supabase.from("bookings").insert([booking]).select()
+
+    if (error) {
+      console.error("Error creating booking:", error.message)
+      return { success: false, message: `Failed to create booking: ${error.message}` }
+    }
+    return { success: true, message: "Booking created successfully!" }
+  } catch (err: any) {
+    console.error("Caught error in createBooking:", err)
+    return { success: false, message: `An unexpected error occurred: ${err.message}` }
+  }
+}
+
+/**
+ * Updates the booked_seats for a specific trip.
+ */
+export async function updateTripBookedSeats(
+  tripId: number,
+  newBookedSeats: number,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const { data, error } = await supabase
+      .from("trips")
+      .update({ booked_seats: newBookedSeats })
+      .eq("id", tripId)
+      .select()
+
+    if (error) {
+      console.error(`Error updating booked seats for trip ${tripId}:`, error.message)
+      return { success: false, message: `Failed to update seats: ${error.message}` }
+    }
+    return { success: true, message: "Seats updated successfully!" }
+  } catch (err: any) {
+    console.error("Caught error in updateTripBookedSeats:", err)
+    return { success: false, message: `An unexpected error occurred: ${err.message}` }
   }
 }

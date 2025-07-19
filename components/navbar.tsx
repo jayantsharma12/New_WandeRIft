@@ -5,7 +5,6 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Menu, X } from "lucide-react"
-import Image from "next/image"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -16,7 +15,7 @@ export default function Navbar() {
         <div className="flex justify-between h-20">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3">
-              <Image src="/eduwander-logo.png" alt="EduWander" width={120} height={60} className="h-12 w-auto" />
+              <img src="/eduwander-logo.png" alt="EduWander" width={160} height={64} className="h-16 w-auto" />
             </Link>
           </div>
 
@@ -28,7 +27,7 @@ export default function Navbar() {
             <Link href="/planner" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
               Plan Trip
             </Link>
-            <Link href="/compare" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
+            <Link href="/destinations" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
               Destinations
             </Link>
             <Link href="/reviews" className="text-gray-700 hover:text-orange-600 transition-colors font-medium">
@@ -59,7 +58,7 @@ export default function Navbar() {
               <Link href="/planner" className="block px-3 py-2 text-gray-700 hover:text-orange-600">
                 Plan Trip
               </Link>
-              <Link href="/compare" className="block px-3 py-2 text-gray-700 hover:text-orange-600">
+              <Link href="/destinations" className="block px-3 py-2 text-gray-700 hover:text-orange-600">
                 Destinations
               </Link>
               <Link href="/reviews" className="block px-3 py-2 text-gray-700 hover:text-orange-600">

@@ -68,7 +68,7 @@ export default function ItineraryPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-4xl font-bold text-gray-900">Your Mountain Adventure Itinerary</h1>
+            <h1 className="text-4xl font-bold text-orange-950">Your Mountain Adventure Itinerary</h1>
             <Button asChild className="bg-orange-500 hover:bg-orange-600">
               <Link href="/planner">Plan Another Trip</Link>
             </Button>
@@ -81,7 +81,7 @@ export default function ItineraryPage() {
                   <MapPin className="h-5 w-5 text-orange-500" />
                   <div>
                     <p className="text-sm text-gray-500">Destination</p>
-                    <p className="font-semibold text-gray-900">{destination}</p>
+                    <p className="font-semibold text-orange-950">{destination}</p>
                   </div>
                 </div>
               </CardContent>
@@ -93,7 +93,7 @@ export default function ItineraryPage() {
                   <Calendar className="h-5 w-5 text-orange-500" />
                   <div>
                     <p className="text-sm text-gray-500">Duration</p>
-                    <p className="font-semibold text-gray-900">{days} days</p>
+                    <p className="font-semibold text-orange-950">{days} days</p>
                   </div>
                 </div>
               </CardContent>
@@ -105,7 +105,7 @@ export default function ItineraryPage() {
                   <IndianRupee className="h-5 w-5 text-orange-500" />
                   <div>
                     <p className="text-sm text-gray-500">Budget</p>
-                    <p className="font-semibold text-gray-900">{budget}</p>
+                    <p className="font-semibold text-orange-950">{budget}</p>
                   </div>
                 </div>
               </CardContent>
@@ -117,7 +117,7 @@ export default function ItineraryPage() {
                   <Users className="h-5 w-5 text-orange-500" />
                   <div>
                     <p className="text-sm text-gray-500">Travelers</p>
-                    <p className="font-semibold text-gray-900">{travelers}</p>
+                    <p className="font-semibold text-orange-950">{travelers}</p>
                   </div>
                 </div>
               </CardContent>
@@ -129,7 +129,7 @@ export default function ItineraryPage() {
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-0 shadow-lg">
               <CardHeader className="bg-orange-50">
-                <CardTitle className="text-gray-900">Adventure Itinerary</CardTitle>
+                <CardTitle className="text-orange-950">Adventure Itinerary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-8 p-8">
                 {generatedData?.itinerary.map((day, index) => (
@@ -139,7 +139,7 @@ export default function ItineraryPage() {
                         {day.day}
                       </div>
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-900">Day {day.day}</h3>
+                        <h3 className="text-xl font-semibold text-orange-950">Day {day.day}</h3>
                         <p className="text-orange-600 font-medium">{day.theme}</p>
                       </div>
                     </div>
@@ -151,7 +151,7 @@ export default function ItineraryPage() {
                             <Clock className="h-5 w-5 text-orange-500 mt-1" />
                             <div className="flex-1">
                               <div className="flex justify-between items-start mb-3">
-                                <p className="font-semibold text-gray-900">{activity.time}</p>
+                                <p className="font-semibold text-orange-950">{activity.time}</p>
                                 <div className="flex items-center space-x-2">
                                   <Badge variant="secondary" className="bg-orange-100 text-orange-800">
                                     {activity.duration}
@@ -191,12 +191,12 @@ export default function ItineraryPage() {
           <div className="space-y-6">
             <Card className="border-0 shadow-lg">
               <CardHeader className="bg-orange-50">
-                <CardTitle className="text-gray-900">Budget Breakdown</CardTitle>
+                <CardTitle className="text-orange-950">Budget Breakdown</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-orange-600">
+                    <p className="text-3xl font-bold text-orange-950">
                       ₹{generatedData?.total_estimated_cost?.toLocaleString() || "0"}
                     </p>
                     <p className="text-gray-500">Total Estimated Cost</p>
@@ -225,7 +225,7 @@ export default function ItineraryPage() {
 
             <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-gray-900">Adventure Highlights</CardTitle>
+                <CardTitle className="text-orange-950">Adventure Highlights</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -241,7 +241,7 @@ export default function ItineraryPage() {
 
             <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-gray-900">Cultural Insights</CardTitle>
+                <CardTitle className="text-orange-950">Cultural Insights</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -257,7 +257,7 @@ export default function ItineraryPage() {
 
             <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-gray-900">Your Interests</CardTitle>
+                <CardTitle className="text-orange-950">Your Interests</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -275,9 +275,3 @@ export default function ItineraryPage() {
     </div>
   )
 }
-// Note: The code below is commented out as it was part of the original file but not used in the final implementation.
-//    // This code handles the POST request to generate an itinerary using the Google Gemini API.
-//    // It validates the input, constructs a detailed prompt, and processes the AI response.
-//    // If any errors occur, it returns appropriate error messages.
-//    // Make sure to set the GOOGLE_GEMINI_API_KEY environment variable before using this API.
-//    // The response includes the generated itinerary, educational highlights, cultural insights, and recommended reading    

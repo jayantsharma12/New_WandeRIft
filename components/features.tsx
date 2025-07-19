@@ -39,7 +39,7 @@ export default function Features() {
     <section className="py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Why Choose TravelAI?</h2>
+          <h2 className="text-3xl font-bold mb-4 text-orange-950">Why Choose TravelAI?</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Experience the future of travel planning with our cutting-edge AI technology
           </p>
@@ -52,7 +52,7 @@ export default function Features() {
                 <div className="mx-auto w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <feature.icon className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="text-xl">{feature.title}</CardTitle>
+                <CardTitle className="text-xl text-orange-950">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">{feature.description}</p>

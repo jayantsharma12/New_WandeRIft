@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Plane } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -8,8 +7,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <Plane className="h-8 w-8 text-primary" />
-              <span className="font-bold text-xl">TravelAI</span>
+              <img src="/eduwander-logo.png" alt="EduWanders Logo" className="h-8 w-auto text-primary" />
+              <span className="font-bold text-xl text-orange-950">EduWanders</span>
             </div>
             <p className="text-muted-foreground mb-4">
               Plan your perfect trip with AI-powered itineraries and budget estimation. Discover amazing destinations
@@ -18,7 +17,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Quick Links</h3>
+            <h3 className="font-semibold mb-4 text-orange-950">Quick Links</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-muted-foreground hover:text-primary">
@@ -44,7 +43,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Support</h3>
+            <h3 className="font-semibold mb-4 text-orange-950">Support</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="#" className="text-muted-foreground hover:text-primary">
