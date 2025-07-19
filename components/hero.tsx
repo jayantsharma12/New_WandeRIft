@@ -25,7 +25,11 @@ export default function Hero() {
             size="lg"
             className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
           >
+<<<<<<< HEAD
             <Link href="/destinations">View Upcoming Trips</Link>
+=======
+            <Link href="/planner">View Upcoming Trips</Link>
+>>>>>>> 14e9023 (completed with Authication)
           </Button>
         </div>
 

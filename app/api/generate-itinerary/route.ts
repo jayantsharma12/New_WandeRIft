@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 
+<<<<<<< HEAD
 // Enhanced JSON parsing function
 function parseAIResponse(rawResponse: string) {
   try {
@@ -50,6 +51,8 @@ function parseAIResponse(rawResponse: string) {
   }
 }
 
+=======
+>>>>>>> 14e9023 (completed with Authication)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -82,8 +85,11 @@ export async function POST(request: NextRequest) {
 
 Focus on authentic experiences and educational activities. The travelers are interested in: ${interests.join(", ")}.
 
+<<<<<<< HEAD
 IMPORTANT: Return ONLY valid JSON, no markdown blocks, no explanations, no notes.
 
+=======
+>>>>>>> 14e9023 (completed with Authication)
 For each day, provide:
 - A meaningful theme that captures the day's focus
 - 5-7 activities with specific times (starting from early morning)
@@ -99,7 +105,11 @@ Also provide:
 - 5 cultural insights about the region
 - 3 recommended books/resources about ${destination}
 
+<<<<<<< HEAD
 Return ONLY this JSON structure with no additional text:
+=======
+Format as JSON with this exact structure:
+>>>>>>> 14e9023 (completed with Authication)
 {
 "itinerary": [
   {
@@ -127,6 +137,7 @@ Return ONLY this JSON structure with no additional text:
       const response = await result.response
       const text = response.text()
 
+<<<<<<< HEAD
       console.log("Raw AI Response:", text.substring(0, 500) + "...")
 
       // Parse the JSON response with enhanced handling
@@ -157,12 +168,57 @@ Return ONLY this JSON structure with no additional text:
           const jsonMatch = text.match(/\{[\s\S]*\}/)
           if (jsonMatch) {
             try {
+=======
+      // Parse the JSON response with improved handling
+      let parsedResponse
+      try {
+        // Clean the response text to remove markdown code blocks and comments
+        let cleanText = text.trim()
+
+        // Remove markdown code blocks if present (e.g., \`\`\`json ... \`\`\`)
+        cleanText = cleanText.replace(/```json\n?/g, "").replace(/```\n?/g, "")
+
+        // Remove any remaining markdown backticks
+        cleanText = cleanText.replace(/`/g, "")
+
+        // Remove single-line comments (// ...)
+        cleanText = cleanText.replace(/\/\/.*$/gm, "")
+
+        // Remove multi-line comments (/* ... */)
+        cleanText = cleanText.replace(/\/\*[\s\S]*?\*\//g, "")
+
+        // Remove newlines and normalize whitespace
+        cleanText = cleanText.replace(/\n/g, " ").replace(/\s+/g, " ").trim()
+
+        // Attempt to fix common JSON formatting issues (e.g., unquoted keys, trailing commas)
+        // This regex attempts to add quotes to unquoted keys. It's a common issue.
+        cleanText = cleanText.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
+        // This regex attempts to remove trailing commas before closing braces/brackets.
+        cleanText = cleanText.replace(/,\s*([}\]])/g, "$1")
+
+        // Try to parse the cleaned text directly first
+        try {
+          parsedResponse = JSON.parse(cleanText)
+        } catch (directParseError) {
+          console.error("Direct parsing failed:", directParseError)
+          console.error("Cleaned text snippet:", cleanText.substring(0, 500))
+
+          // If direct parsing fails, try to extract JSON using regex
+          const jsonMatch = cleanText.match(/\{[\s\S]*\}/)
+          if (jsonMatch) {
+            try {
+              parsedResponse = JSON.parse(jsonMatch[0])
+            } catch (regexParseError) {
+              console.error("Regex parsing also failed:", regexParseError)
+              // Try to fix the extracted JSON
+>>>>>>> 14e9023 (completed with Authication)
               const fixedJson = jsonMatch[0]
                 .replace(/,\s*}/g, "}")
                 .replace(/,\s*]/g, "]")
                 .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
 
               parsedResponse = JSON.parse(fixedJson)
+<<<<<<< HEAD
             } catch (regexParseError) {
               console.error("Regex parsing failed:", regexParseError)
               throw new Error("All parsing methods failed")
@@ -193,6 +249,44 @@ Return ONLY this JSON structure with no additional text:
           }
         } catch (strictError) {
           console.error("Strict regeneration failed:", strictError)
+=======
+            }
+          } else {
+            throw new Error("No valid JSON found in AI response")
+          }
+        }
+
+        // Validate the response structure
+        if (!parsedResponse.itinerary || !Array.isArray(parsedResponse.itinerary)) {
+          throw new Error("Invalid itinerary structure in AI response")
+        }
+      } catch (parseError) {
+        console.error("Failed to parse AI response:", parseError)
+        console.error("Raw response:", text) // Log raw response for debugging
+
+        // If parsing completely fails, try to regenerate with stricter prompt
+        console.log("Attempting to regenerate with stricter JSON format...")
+
+        try {
+          const strictPrompt = `Generate ONLY valid JSON for a ${days}-day itinerary for ${destination}. No markdown, no text outside JSON. Use this exact format:
+{"itinerary":[{"day":1,"theme":"Day theme","activities":[{"time":"7:00 AM","activity":"Activity description","educational_value":"Learning outcome","cost":200,"duration":"2 hours"}]}],"total_estimated_cost":5000,"educational_highlights":["Highlight 1","Highlight 2"],"cultural_insights":["Insight 1","Insight 2"],"recommended_reading":["Book 1","Book 2"]}`
+
+          const strictResult = await model.generateContent(strictPrompt)
+          const strictResponse = await strictResult.response
+          const strictText = strictResponse.text()
+
+          // Try parsing the strict response
+          const strictCleanText = strictText
+            .trim()
+            .replace(/```json\n?/g, "")
+            .replace(/```\n?/g, "")
+            .replace(/,\s*}/g, "}")
+            .replace(/,\s*]/g, "]")
+
+          parsedResponse = JSON.parse(strictCleanText)
+        } catch (strictError) {
+          console.error("Strict regeneration also failed:", strictError)
+>>>>>>> 14e9023 (completed with Authication)
           return NextResponse.json(
             {
               error: "Failed to generate valid itinerary. Please try again with different parameters.",
@@ -212,7 +306,10 @@ Return ONLY this JSON structure with no additional text:
         interests,
         travelers,
       })
+<<<<<<< HEAD
 
+=======
+>>>>>>> 14e9023 (completed with Authication)
     } catch (apiError: any) {
       console.error("Google Gemini API Error:", apiError.message)
       return NextResponse.json(
@@ -233,4 +330,8 @@ Return ONLY this JSON structure with no additional text:
       { status: 500 },
     )
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 14e9023 (completed with Authication)
