@@ -1,76 +1,89 @@
 import Link from "next/link"
+import { Facebook, Instagram, Twitter } from "lucide-react" // Import social icons
 
 export default function Footer() {
   return (
-    <footer className="bg-background border-t">
+    <footer className="bg-brand-darkGrey text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <img src="/eduwander-logo.png" alt="EduWanders Logo" className="h-8 w-auto text-primary" />
-              <span className="font-bold text-xl text-orange-950">EduWanders</span>
+              <img src="/wander-rift-logo.png" alt="WanderRift Logo" width={120} height={48} className="h-12 w-auto" />
+              <span className="font-bold text-xl text-white">WanderRift</span>
             </div>
-            <p className="text-muted-foreground mb-4">
-              Plan your perfect trip with AI-powered itineraries and budget estimation. Discover amazing destinations
-              and create unforgettable memories.
-            </p>
+            <p className="mb-4 text-brand-lightGrey">Making spontaneous adventures accessible to everyone.</p>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-orange-950">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-4 text-white">Destinations</h3>
+            <ul className="space-y-2 text-brand-lightGrey">
               <li>
-                <Link href="/" className="text-muted-foreground hover:text-primary">
-                  Home
+                <Link href="/destinations" className="hover:text-white">
+                  West Coast
                 </Link>
               </li>
               <li>
-                <Link href="/planner" className="text-muted-foreground hover:text-primary">
-                  Plan Trip
+                <Link href="/destinations" className="hover:text-white">
+                  East Coast
                 </Link>
               </li>
               <li>
-                <Link href="/compare" className="text-muted-foreground hover:text-primary">
-                  Compare
+                <Link href="/destinations" className="hover:text-white">
+                  National Parks
                 </Link>
               </li>
               <li>
-                <Link href="/reviews" className="text-muted-foreground hover:text-primary">
-                  Reviews
+                <Link href="/destinations" className="hover:text-white">
+                  Desert Routes
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4 text-orange-950">Support</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-4 text-white">Company</h3>
+            <ul className="space-y-2 text-brand-lightGrey">
               <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary">
-                  Help Center
+                <Link href="#" className="hover:text-white">
+                  About Us
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary">
-                  Contact Us
+                <Link href="#" className="hover:text-white">
+                  Careers
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary">
-                  Privacy Policy
+                <Link href="#" className="hover:text-white">
+                  Press
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary">
-                  Terms of Service
+                <Link href="/auth" className="hover:text-white">
+                  Contact
                 </Link>
               </li>
             </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-4 text-white">Follow Us</h3>
+            <div className="flex space-x-4">
+              <Link href="#" className="text-white hover:text-brand-blue">
+                <Facebook className="h-6 w-6" />
+              </Link>
+              <Link href="#" className="text-white hover:text-brand-red">
+                <Instagram className="h-6 w-6" />
+              </Link>
+              <Link href="#" className="text-white hover:text-brand-blue">
+                <Twitter className="h-6 w-6" />
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-          <p>&copy; 2024 TravelAI. All rights reserved.</p>
+        <div className="border-t border-brand-lightGrey/30 mt-8 pt-8 text-center text-brand-lightGrey">
+          <p>&copy; 2024 WanderRift. All rights reserved.</p>
         </div>
       </div>
     </footer>

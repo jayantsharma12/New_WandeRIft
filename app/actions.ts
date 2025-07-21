@@ -1,15 +1,9 @@
 "use server"
-<<<<<<< HEAD
-import { createBooking, updateTripBookedSeats } from "@/lib/data"; // Import data functions
-import { supabase } from "@/lib/supabase"; // Declare the supabase variable
-import { revalidatePath } from "next/cache"; // For revalidating data after booking
-=======
 
 import { put } from "@vercel/blob"
 import { createBooking, updateTripBookedSeats } from "@/lib/data" // Import data functions
 import { revalidatePath } from "next/cache" // For revalidating data after booking
 import { supabase } from "@/lib/supabase" // Declare the supabase variable
->>>>>>> 14e9023 (completed with Authication)
 
 interface CreateBookingActionParams {
   tripId: number

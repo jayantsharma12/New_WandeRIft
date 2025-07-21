@@ -140,7 +140,7 @@ export default function PlannerPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-red"></div>
       </div>
     )
   }
@@ -149,16 +149,16 @@ export default function PlannerPage() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 text-orange-950">Plan Your Mountain Adventure</h1>
-          <p className="text-xl text-gray-600">
-            Tell us about your preferences and let AI create your personalized student-friendly itinerary
+          <h1 className="text-4xl font-bold mb-4 text-brand-black">Plan Your Next Adventure</h1>
+          <p className="text-xl text-brand-lightGrey">
+            Tell us about your preferences and let AI create your personalized spontaneous itinerary
           </p>
         </div>
 
         <Card className="shadow-xl border-0">
-          <CardHeader className="bg-orange-50">
-            <CardTitle className="flex items-center space-x-2 text-orange-950">
-              <Sparkles className="h-6 w-6 text-orange-600" />
+          <CardHeader className="bg-brand-red/10">
+            <CardTitle className="flex items-center space-x-2 text-brand-black">
+              <Sparkles className="h-6 w-6 text-brand-red" />
               <span>Trip Details</span>
             </CardTitle>
           </CardHeader>
@@ -169,13 +169,13 @@ export default function PlannerPage() {
                   Destination *
                 </Label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-orange-500" />
+                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-brand-red" />
                   <Input
                     id="destination"
                     placeholder="e.g., Manali, Shimla, Rishikesh"
                     value={formData.destination}
                     onChange={(e) => handleInputChange("destination", e.target.value)}
-                    className="pl-12 h-12 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                    className="pl-12 h-12 border-gray-300 focus:border-brand-red focus:ring-brand-red"
                   />
                 </div>
               </div>
@@ -185,14 +185,14 @@ export default function PlannerPage() {
                   Number of Days *
                 </Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-3 h-5 w-5 text-orange-500" />
+                  <Calendar className="absolute left-3 top-3 h-5 w-5 text-brand-red" />
                   <Input
                     id="days"
                     type="number"
                     placeholder="e.g., 5"
                     value={formData.days}
                     onChange={(e) => handleInputChange("days", e.target.value)}
-                    className="pl-12 h-12 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                    className="pl-12 h-12 border-gray-300 focus:border-brand-red focus:ring-brand-red"
                     min="1"
                     max="30"
                   />
@@ -204,7 +204,7 @@ export default function PlannerPage() {
                   Budget Type *
                 </Label>
                 <Select value={formData.budget} onValueChange={(value) => handleInputChange("budget", value)}>
-                  <SelectTrigger className="h-12 border-gray-300 focus:border-orange-500 focus:ring-orange-500">
+                  <SelectTrigger className="h-12 border-gray-300 focus:border-brand-red focus:ring-brand-red">
                     <SelectValue placeholder="Select budget type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -222,14 +222,14 @@ export default function PlannerPage() {
                   Number of Travelers
                 </Label>
                 <div className="relative">
-                  <Users className="absolute left-3 top-3 h-5 w-5 text-orange-500" />
+                  <Users className="absolute left-3 top-3 h-5 w-5 text-brand-red" />
                   <Input
                     id="travelers"
                     type="number"
                     placeholder="e.g., 4"
                     value={formData.travelers}
                     onChange={(e) => handleInputChange("travelers", e.target.value)}
-                    className="pl-12 h-12 border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                    className="pl-12 h-12 border-gray-300 focus:border-brand-red focus:ring-brand-red"
                     min="1"
                     max="20"
                   />
@@ -246,7 +246,7 @@ export default function PlannerPage() {
                       id={interest}
                       checked={formData.selectedInterests.includes(interest)}
                       onCheckedChange={(checked) => handleInterestChange(interest, checked as boolean)}
-                      className="border-orange-300 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                      className="border-brand-red/50 data-[state=checked]:bg-brand-red data-[state=checked]:border-brand-red"
                     />
                     <Label htmlFor={interest} className="text-sm font-normal cursor-pointer text-gray-700">
                       {interest}
@@ -258,7 +258,7 @@ export default function PlannerPage() {
 
             <Button
               onClick={handleGenerateItinerary}
-              className="w-full h-14 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg"
+              className="w-full h-14 bg-brand-red hover:bg-brand-red/90 text-white font-semibold text-lg"
               disabled={isGenerating || !formData.destination || !formData.days || !formData.budget}
             >
               {isGenerating ? (

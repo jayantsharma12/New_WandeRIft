@@ -1,61 +1,59 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { MapPin, Users, Shield, Clock, Heart, Award } from "lucide-react"
+import { Zap, MapPin, DollarSign, Users } from "lucide-react" // Updated icons
 
 const features = [
   {
+    icon: Zap,
+    title: "Spontaneous Planning",
+    description: "Last-minute trips made easy with instant bookings and flexible itineraries",
+    iconColor: "text-brand-red",
+    bgColor: "bg-brand-red/10",
+  },
+  {
     icon: MapPin,
-    title: "50+ Destinations",
-    description: "Carefully curated mountain destinations perfect for student adventures and learning experiences.",
+    title: "Curated Places",
+    description: "Hand-picked destinations and hidden gems discovered by fellow adventurers",
+    iconColor: "text-brand-blue",
+    bgColor: "bg-brand-blue/10",
+  },
+  {
+    icon: DollarSign,
+    title: "Affordable Trips",
+    description: "Budget-friendly adventures without compromising on experience or quality",
+    iconColor: "text-brand-green",
+    bgColor: "bg-brand-green/10",
   },
   {
     icon: Users,
-    title: "Student-Focused",
-    description:
-      "All our trips are designed specifically for college students with affordable pricing and group activities.",
-  },
-  {
-    icon: Shield,
-    title: "Safe & Secure",
-    description: "Your safety is our priority with experienced guides and comprehensive safety measures.",
-  },
-  {
-    icon: Clock,
-    title: "Flexible Scheduling",
-    description: "Trip schedules designed around academic calendars and student availability.",
-  },
-  {
-    icon: Heart,
-    title: "Memorable Experiences",
-    description: "Create lifelong memories with fellow students through adventure and cultural immersion.",
-  },
-  {
-    icon: Award,
-    title: "Expert Guides",
-    description: "Local expert guides who know the best spots and can teach you about local culture and history.",
+    title: "Traveler Community",
+    description: "Connect with like-minded adventurers and share unforgettable experiences",
+    iconColor: "text-brand-red",
+    bgColor: "bg-brand-red/10",
   },
 ]
 
-export default function WhyChooseUs() {
+export default function WhyChooseWanderRift() {
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-brand-yellow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Why Choose Us</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            We specialize in creating unforgettable mountain adventures for students, combining affordability with
-            exceptional experiences.
+          <h2 className="text-4xl md:text-5xl font-bold text-brand-black mb-6">WHY CHOOSE WANDERRRIFT</h2>
+          <p className="text-xl text-brand-lightGrey max-w-3xl mx-auto">
+            We make spontaneous travel simple, affordable, and unforgettable
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card key={index} className="border-0 shadow-lg rounded-xl">
               <CardContent className="p-8 text-center">
-                <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
-                  <feature.icon className="h-8 w-8 text-orange-600" />
+                <div
+                  className={`mx-auto w-16 h-16 ${feature.bgColor} rounded-full flex items-center justify-center mb-6`}
+                >
+                  <feature.icon className={`h-8 w-8 ${feature.iconColor}`} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <h3 className="text-xl font-bold text-brand-black mb-4">{feature.title}</h3>
+                <p className="text-brand-lightGrey leading-relaxed">{feature.description}</p>
               </CardContent>
             </Card>
           ))}

@@ -35,7 +35,7 @@ export default function DestinationsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-muted/50 py-8 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-red"></div>
       </div>
     )
   }
@@ -60,7 +60,7 @@ export default function DestinationsPage() {
     <div className="min-h-screen bg-muted/50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-4 text-orange-950">Explore Our Destinations</h1>
+          <h1 className="text-3xl font-bold mb-4 text-brand-black">Explore Our Destinations</h1>
           <p className="text-muted-foreground text-lg">Find your next educational mountain adventure</p>
         </div>
 
@@ -91,8 +91,8 @@ export default function DestinationsPage() {
 
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg text-orange-950">{trip.destination} Adventure</CardTitle>
-                    <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                    <CardTitle className="text-lg text-brand-black">{trip.destination} Adventure</CardTitle>
+                    <Badge variant="secondary" className="bg-brand-red/10 text-brand-red">
                       {trip.budget}
                     </Badge>
                   </div>
@@ -121,7 +121,7 @@ export default function DestinationsPage() {
                     {isAvailable ? (
                       <BookingModal trip={trip} />
                     ) : (
-                      <Button className="w-full" size="lg" disabled>
+                      <Button className="w-full bg-brand-red hover:bg-brand-red/90" size="lg" disabled>
                         <XCircle className="h-5 w-5 mr-2" />
                         Sold Out
                       </Button>

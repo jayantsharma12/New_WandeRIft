@@ -51,31 +51,16 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        orange: {
-          50: "#fff7ed",
-          100: "#ffedd5",
-          200: "#fed7aa",
-          300: "#fdba74",
-          400: "#fb923c",
-          500: "#f97316",
-          600: "#ea580c",
-          700: "#c2410c",
-          800: "#9a3412",
-          900: "#7c2d12",
-          950: "#431407",
-        },
-        amber: {
-          50: "#fffbeb",
-          100: "#fef3c7",
-          200: "#fde68a",
-          300: "#fcd34d",
-          400: "#fbbf24",
-          500: "#f59e0b",
-          600: "#d97706",
-          700: "#b45309",
-          800: "#92400e",
-          900: "#78350f",
-          950: "#451a03",
+        // New brand colors based on the logo and UI
+        brand: {
+          red: "#EF4444", // A vibrant red for accents
+          blue: "#3B82F6", // A vibrant blue for accents
+          green: "#22C55E", // A vibrant green for accents
+          yellow: "#FACC15", // A vibrant yellow for backgrounds
+          darkGrey: "#1F2937", // Dark grey for backgrounds/text
+          lightGrey: "#6B7280", // Lighter grey for secondary text
+          black: "#000000", // Pure black for main text/headings
+          white: "#FFFFFF", // Pure white
         },
       },
       borderRadius: {

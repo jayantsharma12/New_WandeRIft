@@ -1,13 +1,13 @@
-import { notFound } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import BookingModal from "@/components/booking-modal"; // Import the new BookingModal
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { MapPin, Calendar, DollarSign, Users, Star, XCircle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { getTripById } from "@/lib/data"; // Import getTripById and Trip type
+import { Calendar, DollarSign, MapPin, Star, Users, XCircle } from "lucide-react"
+import Image from "next/image"; // Import Image component
 import Link from "next/link"
-import Image from "next/image" // Import Image component
-import { getTripById } from "@/lib/data" // Import getTripById and Trip type
-import BookingModal from "@/components/booking-modal" // Import the new BookingModal
+import { notFound } from "next/navigation"
 
 export default async function TripDetailPage({ params }: { params: { id: string } }) {
   const tripId = Number.parseInt(params.id)
@@ -26,7 +26,7 @@ export default async function TripDetailPage({ params }: { params: { id: string 
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2 text-orange-950">{trip.destination} Adventure</h1>
+              <h1 className="text-3xl font-bold mb-2 text-brand-black">{trip.destination} Adventure</h1>
               <div className="flex items-center space-x-4 text-muted-foreground">
                 <div className="flex items-center space-x-1">
                   <Star className="h-4 w-4 fill-current text-yellow-400" />
@@ -71,22 +71,22 @@ export default async function TripDetailPage({ params }: { params: { id: string 
                   <div className="text-center">
                     <Calendar className="h-6 w-6 mx-auto mb-2 text-primary" />
                     <p className="text-sm text-muted-foreground">Duration</p>
-                    <p className="font-semibold text-orange-950">{trip.days} Days</p>
+                    <p className="font-semibold text-brand-black">{trip.days} Days</p>
                   </div>
                   <div className="text-center">
                     <DollarSign className="h-6 w-6 mx-auto mb-2 text-primary" />
                     <p className="text-sm text-muted-foreground">Total Cost</p>
-                    <p className="font-semibold text-orange-950">₹{(trip.cost ?? 0).toLocaleString()}</p>
+                    <p className="font-semibold text-brand-black">₹{(trip.cost ?? 0).toLocaleString()}</p>
                   </div>
                   <div className="text-center">
                     <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
                     <p className="text-sm text-muted-foreground">Seats Left</p>
-                    <p className="font-semibold text-orange-950">{seatsLeft}</p>
+                    <p className="font-semibold text-brand-black">{seatsLeft}</p>
                   </div>
                   <div className="text-center">
                     <MapPin className="h-6 w-6 mx-auto mb-2 text-primary" />
                     <p className="text-sm text-muted-foreground">Type</p>
-                    <p className="font-semibold text-orange-950">{trip.budget}</p>
+                    <p className="font-semibold text-brand-black">{trip.budget}</p>
                   </div>
                 </div>
               </CardContent>
@@ -105,7 +105,7 @@ export default async function TripDetailPage({ params }: { params: { id: string 
                         <div className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
                           {index + 1}
                         </div>
-                        <h3 className="text-lg font-semibold text-orange-950">Day {index + 1}</h3>
+                        <h3 className="text-lg font-semibold text-brand-black">Day {index + 1}</h3>
                       </div>
                       <p className="text-muted-foreground">{day}</p>
                     </div>
@@ -135,7 +135,7 @@ export default async function TripDetailPage({ params }: { params: { id: string 
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-semibold text-orange-950">{review.user_name}</h4>
+                              <h4 className="font-semibold text-brand-black">{review.user_name}</h4>
                               <div className="flex items-center space-x-1">
                                 <div className="flex">
                                   {[1, 2, 3, 4, 5].map((star) => (
@@ -147,7 +147,7 @@ export default async function TripDetailPage({ params }: { params: { id: string 
                                     />
                                   ))}
                                 </div>
-                                <span className="text-sm font-medium text-orange-950">{review.rating}</span>
+                                <span className="text-sm font-medium text-brand-black">{review.rating}</span>
                               </div>
                             </div>
                             <p className="text-muted-foreground">{review.comment}</p>
@@ -169,12 +169,12 @@ export default async function TripDetailPage({ params }: { params: { id: string 
             {/* Booking Card */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-orange-950">Book This Trip</CardTitle>
+                <CardTitle className="text-brand-black">Book This Trip</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-orange-950">₹{(trip.cost ?? 0).toLocaleString()}</p>
+                    <p className="text-3xl font-bold text-brand-black">₹{(trip.cost ?? 0).toLocaleString()}</p>
                     <p className="text-muted-foreground">per person</p>
                   </div>
 
@@ -201,7 +201,7 @@ export default async function TripDetailPage({ params }: { params: { id: string 
             {/* Trip Highlights */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-orange-950">Trip Highlights</CardTitle>
+                <CardTitle className="text-brand-black">Trip Highlights</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -230,7 +230,7 @@ export default async function TripDetailPage({ params }: { params: { id: string 
             {/* What's Included */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-orange-950">What's Included</CardTitle>
+                <CardTitle className="text-brand-black">What's Included</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
