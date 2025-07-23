@@ -53,10 +53,10 @@ module.exports = {
         },
         // New brand colors based on the logo and UI
         brand: {
-          red: "#EF4444", // A vibrant red for accents
-          blue: "#3B82F6", // A vibrant blue for accents
-          green: "#22C55E", // A vibrant green for accents
-          yellow: "#FACC15", // A vibrant yellow for backgrounds
+          red: "#d32121ff", // A vibrant red for accents
+          blue: "#1a6ff7ff", // A vibrant blue for accents
+          green: "#0ca544ff", // A vibrant green for accents
+          yellow: "#f4c611ff", // A vibrant yellow for backgrounds
           darkGrey: "#1F2937", // Dark grey for backgrounds/text
           lightGrey: "#6B7280", // Lighter grey for secondary text
           black: "#000000", // Pure black for main text/headings

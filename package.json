@@ -22,7 +22,7 @@
     "@vercel/blob": "^1.1.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.23.6",
+    "framer-motion": "^11.0.0",
     "lucide-react": "^0.263.1",
     "motion": "^12.23.6",
     "next": "^14.2.30",

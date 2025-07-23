@@ -83,7 +83,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-brand-lightGrey/30 mt-8 pt-8 text-center text-brand-lightGrey">
-          <p>&copy; 2024 WanderRift. All rights reserved.</p>
+          <p>&copy; 2022 WanderRift. All rights reserved.</p>
         </div>
       </div>
     </footer>
