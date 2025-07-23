@@ -31,3 +31,11 @@ next-env.d.ts
 # clerk configuration (can include secrets)
 /.clerk/
 >>>>>>> 14e9023 (completed with Authication)
+
+# Node modules and build files
+node_modules
+dist
+build
+
+# pnpm store
+.pnpm-store
