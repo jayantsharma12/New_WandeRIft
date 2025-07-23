@@ -20,6 +20,8 @@ export interface Trip {
   image_url?: string // New: Optional image URL for the trip
   total_seats?: number // New: Total available seats
   booked_seats?: number // New: Number of booked seats
+  start_date?: string // New: Start date of the trip
+  end_date?: string // New: End date of the trip
   reviews?: Review[] // Optional, will be fetched separately or joined
 }
 

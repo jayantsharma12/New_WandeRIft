@@ -1,13 +1,13 @@
-import BookingModal from "@/components/booking-modal"; // Import the new BookingModal
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { notFound } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getTripById } from "@/lib/data"; // Import getTripById and Trip type
-import { Calendar, DollarSign, MapPin, Star, Users, XCircle } from "lucide-react"
-import Image from "next/image"; // Import Image component
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Calendar, DollarSign, Users, Star, XCircle, CalendarDays } from "lucide-react" // Added CalendarDays
 import Link from "next/link"
-import { notFound } from "next/navigation"
+import Image from "next/image" // Import Image component
+import { getTripById } from "@/lib/data" // Import getTripById and Trip type
+import BookingModal from "@/components/booking-modal" // Import the new BookingModal
 
 export default async function TripDetailPage({ params }: { params: { id: string } }) {
   const tripId = Number.parseInt(params.id)
@@ -19,6 +19,18 @@ export default async function TripDetailPage({ params }: { params: { id: string 
 
   const seatsLeft = (trip.total_seats ?? 0) - (trip.booked_seats ?? 0)
   const isAvailable = seatsLeft > 0
+
+  // Format dates
+  const startDate = trip.start_date
+    ? new Date(trip.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    : "N/A"
+  const endDate = trip.end_date
+    ? new Date(trip.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "N/A"
+  const formattedDates =
+  trip.start_date && trip.end_date
+    ? `${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}`
+    : "N/A";
 
   return (
     <div className="min-h-screen bg-muted/50 py-8">
@@ -84,9 +96,9 @@ export default async function TripDetailPage({ params }: { params: { id: string 
                     <p className="font-semibold text-brand-black">{seatsLeft}</p>
                   </div>
                   <div className="text-center">
-                    <MapPin className="h-6 w-6 mx-auto mb-2 text-primary" />
-                    <p className="text-sm text-muted-foreground">Type</p>
-                    <p className="font-semibold text-brand-black">{trip.budget}</p>
+                    <CalendarDays className="h-6 w-6 mx-auto mb-2 text-primary" /> {/* New: CalendarDays icon */}
+                    <p className="text-sm text-muted-foreground">Dates</p> {/* New: Dates label */}
+                    <p className="font-semibold text-brand-black">{formattedDates}</p> {/* New: Formatted dates */}
                   </div>
                 </div>
               </CardContent>

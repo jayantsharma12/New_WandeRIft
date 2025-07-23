@@ -93,15 +93,18 @@ export default function BookingModal({ trip }: BookingModalProps) {
     }
 
     try {
-      const result = await createBookingAction({
-        tripId: trip.id,
-        userName: formData.userName,
-        userEmail: formData.userEmail,
-        userPhone: formData.userPhone,
-        numTravelers: Number(formData.numTravelers),
-        paymentMethodId: Number(formData.paymentMethodId),
-        paymentScreenshot: formData.paymentScreenshot,
-      })
+      const formDataToSend = new FormData()
+      formDataToSend.append("tripId", String(trip.id))
+      formDataToSend.append("userName", formData.userName)
+      formDataToSend.append("userEmail", formData.userEmail)
+      formDataToSend.append("userPhone", formData.userPhone)
+      formDataToSend.append("numTravelers", formData.numTravelers)
+      formDataToSend.append("paymentMethodId", formData.paymentMethodId)
+      if (formData.paymentScreenshot) {
+        formDataToSend.append("paymentScreenshot", formData.paymentScreenshot)
+      }
+
+      const result = await createBookingAction(formDataToSend)
 
       if (result.success) {
         setBookingStatus("success")
@@ -124,7 +127,7 @@ export default function BookingModal({ trip }: BookingModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full" size="lg" disabled={!availableSeats}>
+        <Button className="w-full bg-brand-red hover:bg-brand-red/90" size="lg" disabled={!availableSeats}>
           {availableSeats > 0 ? (
             <>
               <CheckCircle2 className="h-5 w-5 mr-2" />

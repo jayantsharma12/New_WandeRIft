@@ -1,29 +1,19 @@
 "use server"
 
-import { put } from "@vercel/blob"
-import { createBooking, updateTripBookedSeats } from "@/lib/data" // Import data functions
-import { revalidatePath } from "next/cache" // For revalidating data after booking
-import { supabase } from "@/lib/supabase" // Declare the supabase variable
+import { createBooking, updateTripBookedSeats } from "@/lib/data"; // Import data functions
+import { supabase } from "@/lib/supabase"; // Declare the supabase variable
+import { put } from "@vercel/blob"; // Revert to Vercel Blob
+import { revalidatePath } from "next/cache"; // For revalidating data after booking
 
-interface CreateBookingActionParams {
-  tripId: number
-  userName: string
-  userEmail: string
-  userPhone: string
-  numTravelers: number
-  paymentMethodId: number
-  paymentScreenshot: File | null
-}
+export async function createBookingAction(formData: FormData) {
+  const tripId = Number(formData.get("tripId"))
+  const userName = formData.get("userName") as string
+  const userEmail = formData.get("userEmail") as string
+  const userPhone = formData.get("userPhone") as string
+  const numTravelers = Number(formData.get("numTravelers"))
+  const paymentMethodId = Number(formData.get("paymentMethodId"))
+  const paymentScreenshot = formData.get("paymentScreenshot") as File | null
 
-export async function createBookingAction({
-  tripId,
-  userName,
-  userEmail,
-  userPhone,
-  numTravelers,
-  paymentMethodId,
-  paymentScreenshot,
-}: CreateBookingActionParams) {
   let screenshotUrl: string | undefined
 
   try {

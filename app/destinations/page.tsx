@@ -4,11 +4,12 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, MapPin, Calendar, IndianRupee, Users, XCircle } from "lucide-react"
+import { Star, MapPin, Calendar, IndianRupee, Users, XCircle, CalendarDays } from "lucide-react" // Added CalendarDays
 import Link from "next/link"
 import Image from "next/image"
 import { getTrips, type Trip } from "@/lib/data"
 import BookingModal from "@/components/booking-modal" // Import the BookingModal
+import { supabase } from "@/lib/supabase"
 
 export default function DestinationsPage() {
   const [allTrips, setAllTrips] = useState<Trip[]>([])
@@ -16,7 +17,7 @@ export default function DestinationsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchTrips = async () => {
+    const fetchAndSubscribeTrips = async () => {
       setLoading(true)
       setError(null)
       try {
@@ -29,7 +30,23 @@ export default function DestinationsPage() {
         setLoading(false)
       }
     }
-    fetchTrips()
+
+    fetchAndSubscribeTrips() // Initial fetch
+
+    // Set up Supabase Realtime subscription
+    const channel = supabase
+      .channel("destinations_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "trips" }, (payload) => {
+        console.log("Change received!", payload)
+        // Re-fetch trips whenever there's a change in the 'trips' table
+        fetchAndSubscribeTrips()
+      })
+      .subscribe()
+
+    // Cleanup function for the subscription
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   if (loading) {
@@ -68,6 +85,15 @@ export default function DestinationsPage() {
           {allTrips.map((trip) => {
             const seatsLeft = (trip.total_seats ?? 0) - (trip.booked_seats ?? 0)
             const isAvailable = seatsLeft > 0
+
+            // Format dates for display on cards
+            const startDate = trip.start_date
+              ? new Date(trip.start_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+              : "N/A"
+            const endDate = trip.end_date
+              ? new Date(trip.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+              : "N/A"
+            const formattedDates = trip.start_date && trip.end_date ? `${startDate} - ${endDate}` : "Dates TBD"
 
             return (
               <Card key={trip.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-0">
@@ -114,6 +140,12 @@ export default function DestinationsPage() {
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Users className="h-4 w-4 mr-2" />
                       {seatsLeft} seats left
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      {" "}
+                      {/* New: Trip Dates */}
+                      <CalendarDays className="h-4 w-4 mr-2" />
+                      {formattedDates}
                     </div>
                   </div>
 
