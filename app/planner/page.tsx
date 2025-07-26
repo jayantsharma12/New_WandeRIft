@@ -223,9 +223,9 @@ export default function WonderRiftPlanner() {
                       <SelectValue placeholder="Energy Tier 1 (Budget)" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-700 border-gray-600">
-                      <SelectItem value="Budget">Energy Tier 1 (Budget)</SelectItem>
-                      <SelectItem value="Moderate">Energy Tier 2 (Moderate)</SelectItem>
-                      <SelectItem value="Luxury">Energy Tier 3 (Luxury)</SelectItem>
+                      <SelectItem value="Budget">(Budget)</SelectItem>
+                      <SelectItem value="Moderate">(Moderate)</SelectItem>
+                      <SelectItem value="Luxury">(Luxury)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
