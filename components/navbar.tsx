@@ -45,7 +45,7 @@ export default function Navbar() {
               href="/planner"
               className="text-brand-darkGrey hover:text-brand-red transition-colors font-medium"
             >
-              Plan Trip
+              AI Planner
             </Link>
             <Link
               href="/destinations"

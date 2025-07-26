@@ -223,9 +223,9 @@ export default function WonderRiftPlanner() {
                       <SelectValue placeholder="Energy Tier 1 (Budget)" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-700 border-gray-600">
-                      <SelectItem value="Budget">(Budget)</SelectItem>
-                      <SelectItem value="Moderate">(Moderate)</SelectItem>
-                      <SelectItem value="Luxury">(Luxury)</SelectItem>
+                      <SelectItem value="Budget">Budget</SelectItem>
+                      <SelectItem value="Moderate">Moderate</SelectItem>
+                      <SelectItem value="Luxury">Luxury</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -235,14 +235,14 @@ export default function WonderRiftPlanner() {
                     Time Travelers
                   </Label>
                   <Select value={formData.travelers} onValueChange={(value) => handleInputChange("travelers", value)}>
-                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white focus:border-red-500 mt-2">
+                    <SelectTrigger className="bg-gray-700 border-white-600 text-white focus:border-red-500 mt-2">
                       <SelectValue placeholder="1 Traveler" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-700 border-gray-600">
-                      <SelectItem value="1">1 Traveler</SelectItem>
-                      <SelectItem value="2">2 Travelers</SelectItem>
-                      <SelectItem value="4">4 Travelers</SelectItem>
-                      <SelectItem value="6">6 Travelers</SelectItem>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="4">4</SelectItem>
+                      <SelectItem value="6">6</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

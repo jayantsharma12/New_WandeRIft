@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 
 const travelerStories = [
   {
-    name: "Sarah M.",
+    name: "Ananya Jain",
     title: "Adventure Seeker",
     avatar:
       "https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -12,7 +12,7 @@ const travelerStories = [
     bgColor: "bg-brand-red",
   },
   {
-    name: "Mike T.",
+    name: "Harsh Patel",
     title: "Road Trip Enthusiast",
     avatar:
       "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -21,7 +21,7 @@ const travelerStories = [
     bgColor: "bg-brand-green",
   },
   {
-    name: "Emma L.",
+    name: "Shreya Kapoor",
     title: "Solo Traveler",
     avatar:
       "https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
