@@ -1,19 +1,19 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { MapPin, Calendar, Users, Sparkles } from "lucide-react"
+import { MapPin, Target, User, Zap } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
 
 const budgetTypes = ["Budget", "Moderate", "Luxury"]
 const educationalInterests = [
   "History & Heritage",
-  "Science & Technology",
+  "Science & Technology", 
   "Art & Culture",
   "Nature & Wildlife",
   "Architecture",
@@ -30,7 +30,7 @@ interface FormData {
   selectedInterests: string[]
 }
 
-export default function PlannerPage() {
+export default function WonderRiftPlanner() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
@@ -139,142 +139,211 @@ export default function PlannerPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-red"></div>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-400"></div>
       </div>
     )
   }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 text-brand-black">Plan Your Next Adventure</h1>
-          <p className="text-xl text-brand-lightGrey">
-            Tell us about your preferences and let AI create your personalized spontaneous itinerary
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-900 text-white">
 
-        <Card className="shadow-xl border-0">
-          <CardHeader className="bg-brand-red/10">
-            <CardTitle className="flex items-center space-x-2 text-brand-black">
-              <Sparkles className="h-6 w-6 text-brand-red" />
-              <span>Trip Details</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-8 p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="destination" className="text-gray-700 font-medium">
-                  Destination *
+      {/* Hero Section */}
+      <div className="relative bg-white p-6 mb-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-yellow-600/10"></div>
+        <div className="relative max-w-4xl mx-auto text-center">
+        <h2 className="text-4xl font-bold mb-4 text-black">Plan Your Timeline Adventure</h2>
+          <p className="text-xl text-black mb-8">
+  Let our AI Navigator customize your journey across space and time.
+          </p>
+          
+          {/* Navigation Pills */}
+          
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Panel - Chrono Travel Console */}
+        <div className="lg:col-span-2">
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-white">
+                <div className="w-4 h-4 bg-red-500 rounded"></div>
+                <span>WanderRift TimeDock</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Temporal Destination */}
+              <div>
+                <Label htmlFor="destination" className="text-gray-300 font-medium">
+                  WanderPoint Destination
                 </Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-brand-red" />
+                <div className="relative mt-2">
                   <Input
                     id="destination"
-                    placeholder="e.g., Manali, Shimla, Rishikesh"
+                    placeholder="Ancient Rome, Tokyo, Medieval Paris..."
                     value={formData.destination}
                     onChange={(e) => handleInputChange("destination", e.target.value)}
-                    className="pl-12 h-12 border-gray-300 focus:border-brand-red focus:ring-brand-red"
+                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-red-500 pr-12"
                   />
+                  <MapPin className="absolute right-3 top-3 w-5 h-5 text-red-400" />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="days" className="text-gray-700 font-medium">
-                  Number of Days *
-                </Label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-3 h-5 w-5 text-brand-red" />
-                  <Input
-                    id="days"
-                    type="number"
-                    placeholder="e.g., 5"
-                    value={formData.days}
-                    onChange={(e) => handleInputChange("days", e.target.value)}
-                    className="pl-12 h-12 border-gray-300 focus:border-brand-red focus:ring-brand-red"
-                    min="1"
-                    max="30"
-                  />
+              {/* Days, Budget, Travelers Row */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label className="text-gray-300 font-medium">
+                    Days in Timeline
+                  </Label>
+                  <Select value={formData.days} onValueChange={(value) => handleInputChange("days", value)}>
+                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white focus:border-red-500 mt-2">
+                      <SelectValue placeholder="3 Days" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-700 border-gray-600">
+                      <SelectItem value="1">1 Day</SelectItem>
+                      <SelectItem value="2">2 Days</SelectItem>
+                      <SelectItem value="3">3 Days</SelectItem>
+                      <SelectItem value="4">4 Days</SelectItem>           
+                      <SelectItem value="5">5 Days</SelectItem>
+                      <SelectItem value="6">6 Days</SelectItem>
+                      <SelectItem value="7">7 Days</SelectItem>
+                      <SelectItem value="8">8 Days</SelectItem>
+                      <SelectItem value="9">9 Days</SelectItem>
+                      <SelectItem value="10">10 Days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label className="text-gray-300 font-medium">
+                    Budget Capacity
+                  </Label>
+                  <Select value={formData.budget} onValueChange={(value) => handleInputChange("budget", value)}>
+                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white focus:border-red-500 mt-2">
+                      <SelectValue placeholder="Energy Tier 1 (Budget)" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-700 border-gray-600">
+                      <SelectItem value="Budget">Energy Tier 1 (Budget)</SelectItem>
+                      <SelectItem value="Moderate">Energy Tier 2 (Moderate)</SelectItem>
+                      <SelectItem value="Luxury">Energy Tier 3 (Luxury)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label className="text-gray-300 font-medium">
+                    Time Travelers
+                  </Label>
+                  <Select value={formData.travelers} onValueChange={(value) => handleInputChange("travelers", value)}>
+                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white focus:border-red-500 mt-2">
+                      <SelectValue placeholder="1 Traveler" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-700 border-gray-600">
+                      <SelectItem value="1">1 Traveler</SelectItem>
+                      <SelectItem value="2">2 Travelers</SelectItem>
+                      <SelectItem value="4">4 Travelers</SelectItem>
+                      <SelectItem value="6">6 Travelers</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="budget" className="text-gray-700 font-medium">
-                  Budget Type *
+              {/* Chrono Educational Interests */}
+              <div>
+                <Label className="text-gray-300 font-medium">
+                  Chrono Educational Interests
                 </Label>
-                <Select value={formData.budget} onValueChange={(value) => handleInputChange("budget", value)}>
-                  <SelectTrigger className="h-12 border-gray-300 focus:border-brand-red focus:ring-brand-red">
-                    <SelectValue placeholder="Select budget type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {budgetTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="travelers" className="text-gray-700 font-medium">
-                  Number of Travelers
-                </Label>
-                <div className="relative">
-                  <Users className="absolute left-3 top-3 h-5 w-5 text-brand-red" />
-                  <Input
-                    id="travelers"
-                    type="number"
-                    placeholder="e.g., 4"
-                    value={formData.travelers}
-                    onChange={(e) => handleInputChange("travelers", e.target.value)}
-                    className="pl-12 h-12 border-gray-300 focus:border-brand-red focus:ring-brand-red"
-                    min="1"
-                    max="20"
-                  />
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  {[
+                    { name: "History & Heritage", icon: "📜", color: "text-yellow-400" },
+                    { name: "Science & Technology", icon: "🚀", color: "text-blue-400" },
+                    { name: "Art & Culture", icon: "🏛️", color: "text-orange-400" },
+                    { name: "Cuisine", icon: "🍽️", color: "text-yellow-400" },
+                    { name: "Architecture", icon: "🏗️", color: "text-blue-400" },
+                    { name: "Local Traditions", icon: "⚔️", color: "text-red-400" },
+                    { name: "Nature & Wildlife", icon: "🌿", color: "text-green-400" },
+                    { name: "Museums & Galleries", icon: "🎨", color: "text-green-400" }
+                  ].map((interest) => (
+                    <div key={interest.name} className="flex items-center space-x-3">
+                      <Checkbox
+                        id={interest.name}
+                        checked={formData.selectedInterests.includes(interest.name)}
+                        onCheckedChange={(checked) => handleInterestChange(interest.name, checked as boolean)}
+                        className="border-red-400/50 data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
+                      />
+                      <Label htmlFor={interest.name} className="text-sm text-gray-300 cursor-pointer flex items-center space-x-2">
+                        <span className={`text-lg ${interest.color}`}>{interest.icon}</span>
+                        <span>{interest.name}</span>
+                      </Label>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            <div className="space-y-4">
-              <Label className="text-gray-700 font-medium">Educational Interests (Select all that apply)</Label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {educationalInterests.map((interest) => (
-                  <div key={interest} className="flex items-center space-x-3">
-                    <Checkbox
-                      id={interest}
-                      checked={formData.selectedInterests.includes(interest)}
-                      onCheckedChange={(checked) => handleInterestChange(interest, checked as boolean)}
-                      className="border-brand-red/50 data-[state=checked]:bg-brand-red data-[state=checked]:border-brand-red"
-                    />
-                    <Label htmlFor={interest} className="text-sm font-normal cursor-pointer text-gray-700">
-                      {interest}
-                    </Label>
+        {/* Right Panel - AI Travel Core */}
+        <div className="space-y-6">
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-white">
+                <div className="w-4 h-4 bg-yellow-500 rounded"></div>
+                <span>AI Travel Core</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Circular Progress Display */}
+              <div className="flex justify-center mb-6">
+                <div className="relative w-32 h-32">
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 p-1">
+                    <div className="bg-gray-800 rounded-full w-full h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-8 h-8 bg-gray-600 rounded-full mx-auto mb-2 flex items-center justify-center">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="text-xs text-gray-400">Neural Link</div>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
 
-            <Button
-              onClick={handleGenerateItinerary}
-              className="w-full h-14 bg-brand-red hover:bg-brand-red/90 text-white font-semibold text-lg"
-              disabled={isGenerating || !formData.destination || !formData.days || !formData.budget}
-            >
-              {isGenerating ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" />
-                  Generating Your Adventure Itinerary...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5 mr-3" />
-                  Generate Adventure Itinerary
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
+              <Card className="bg-gray-700 border-gray-600 mb-4">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Target className="w-4 h-4 text-yellow-400" />
+                    <span className="text-sm font-semibold text-white">AI Navigator Tip</span>
+                  </div>
+                  <p className="text-xs text-gray-300">
+                    Select multiple interests to create a more diverse temporal journey experience.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Button
+                onClick={handleGenerateItinerary}
+                disabled={isGenerating || !formData.destination || !formData.days || !formData.budget}
+                className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-4 h-auto"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                    <span>Calculating Timeline...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-5 h-5 mr-2" />
+                    <span>Generate Temporal Journey</span>
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-gray-400 text-center mt-2">
+                Calculating timelines, please wait...
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

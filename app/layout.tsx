@@ -1,6 +1,9 @@
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
-import { ThemeProvider } from "@/components/theme-provider";
+
+// import { ThemeProvider } from "@/components/theme-provider";
+import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision"
+
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -20,23 +23,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <>
+      <ClerkProvider>
+        <html lang="en" suppressHydrationWarning>
+          <body className={inter.className}>
+        <div className="min-h-screen flex flex-col">
+          <BackgroundBeamsWithCollision className="absolute inset-0 -z-10" />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+          </body>
+        </html>
+      </ClerkProvider>
+    </>
   );
 }

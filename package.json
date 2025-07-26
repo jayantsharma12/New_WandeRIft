@@ -21,6 +21,7 @@
     "@supabase/supabase-js": "^2.52.0",
     "@vercel/blob": "^1.1.1",
     "class-variance-authority": "^0.7.0",
+    "clerk": "^0.8.3",
     "clsx": "^2.1.1",
     "framer-motion": "^11.0.0",
     "lucide-react": "^0.263.1",
@@ -30,6 +31,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-resizable-panels": "^3.0.3",
+    "supabase": "^2.31.8",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7"
   },
