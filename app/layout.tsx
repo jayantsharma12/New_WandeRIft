@@ -3,7 +3,7 @@ import Navbar from "@/components/navbar";
 
 // import { ThemeProvider } from "@/components/theme-provider";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision"
-
+import { Analytics } from "@vercel/analytics/next"
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
