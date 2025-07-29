@@ -21,7 +21,7 @@
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.0.4",
-    "@supabase/supabase-js": "^2.52.0",
+    "@supabase/supabase-js": "^2.53.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/blob": "^1.1.1",
     "class-variance-authority": "^0.7.1",
@@ -39,7 +39,6 @@
     "react-dom": "^18",
     "react-resizable-panels": "^3.0.3",
     "recharts": "^3.1.0",
-    "supabase": "^2.31.8",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7"
   },
