@@ -1,87 +1,133 @@
 "use server"
 
-import { createBooking, updateTripBookedSeats } from "@/lib/data"; // Import data functions
-import { supabase } from "@/lib/supabase"; // Declare the supabase variable
-import { put } from "@vercel/blob"; // Revert to Vercel Blob
-import { revalidatePath } from "next/cache"; // For revalidating data after booking
+import { put } from "@vercel/blob"
+import { revalidatePath } from "next/cache"
+import { sendBookingToTelegram } from "@/lib/telegram"
+import { saveBookingToDatabase, getTrip, getPaymentMethod, incrementTripBookedSeats } from "@/lib/data"
 
 export async function createBookingAction(formData: FormData) {
-  const tripId = Number(formData.get("tripId"))
-  const userName = formData.get("userName") as string
-  const userEmail = formData.get("userEmail") as string
-  const userPhone = formData.get("userPhone") as string
-  const numTravelers = Number(formData.get("numTravelers"))
-  const paymentMethodId = Number(formData.get("paymentMethodId"))
-  const paymentScreenshot = formData.get("paymentScreenshot") as File | null
-
-  let screenshotUrl: string | undefined
-
   try {
-    // 1. Upload payment screenshot to Vercel Blob
-    if (paymentScreenshot) {
-      const filename = `${Date.now()}-${paymentScreenshot.name}`
-      const blob = await put(filename, paymentScreenshot, {
-        access: "public",
-      })
-      screenshotUrl = blob.url
+    // Extract form data
+    const tripId = Number(formData.get("tripId"))
+    const userName = formData.get("userName") as string
+    const userEmail = formData.get("userEmail") as string
+    const userPhone = formData.get("userPhone") as string
+    const numTravelers = Number(formData.get("numTravelers"))
+    const paymentMethodId = Number(formData.get("paymentMethodId"))
+    const paymentScreenshot = formData.get("paymentScreenshot") as File
+
+    // Validate required fields
+    if (!tripId || !userName || !userEmail || !numTravelers || !paymentMethodId) {
+      return {
+        success: false,
+        message: "Please fill in all required fields.",
+      }
     }
 
-    // 2. Create booking in Supabase
-    const bookingResult = await createBooking({
+    // Get trip and payment method details
+    const trip = await getTrip(tripId)
+    const paymentMethod = await getPaymentMethod(paymentMethodId)
+
+    if (!trip) {
+      return {
+        success: false,
+        message: "Trip not found.",
+      }
+    }
+
+    if (!paymentMethod) {
+      return {
+        success: false,
+        message: "Payment method not found.",
+      }
+    }
+
+    // Check seat availability
+    const availableSeats = (trip.total_seats ?? 0) - (trip.booked_seats ?? 0)
+    if (numTravelers > availableSeats) {
+      return {
+        success: false,
+        message: `Only ${availableSeats} seats available. You requested ${numTravelers}.`,
+      }
+    }
+
+    let screenshotUrl = ""
+
+    // Upload screenshot to Vercel Blob if provided
+    if (paymentScreenshot && paymentScreenshot.size > 0) {
+      try {
+        const blob = await put(
+          `payment-screenshots/${Date.now()}-${tripId}-${userName.replace(/\s+/g, "-")}.${paymentScreenshot.name.split(".").pop()}`,
+          paymentScreenshot,
+          {
+            access: "public",
+          },
+        )
+        screenshotUrl = blob.url
+      } catch (error) {
+        console.error("Screenshot upload error:", error)
+        return {
+          success: false,
+          message: "Failed to upload payment screenshot. Please try again.",
+        }
+      }
+    }
+
+    // Save booking to database
+    const bookingRecord = {
       trip_id: tripId,
       user_name: userName,
       user_email: userEmail,
       user_phone: userPhone,
       num_travelers: numTravelers,
       payment_method_id: paymentMethodId,
-      payment_screenshot_url: screenshotUrl,
-      booking_status: "pending", // Initial status
+      payment_method_name: paymentMethod.name,
+      screenshot_url: screenshotUrl,
+      payment_status: "pending" as const,
+      trip_destination: trip.destination,
+    }
+
+    const supabaseResult = await saveBookingToDatabase(bookingRecord)
+
+    // ✅ FIXED: Send booking details to Telegram with CORRECT parameters
+    const telegramResult = await sendBookingToTelegram({
+      tripDestination: trip.destination, // ✅ Correct parameter name
+      userName: userName, // ✅ Correct parameter name
+      userPhone: userPhone, // ✅ Correct parameter name
+      userEmail: userEmail, // ✅ Correct parameter name
+      numTravelers: numTravelers.toString(), // ✅ Correct parameter name
+      paymentMethod: paymentMethod.name, // ✅ Correct parameter name
+      screenshotUrl: screenshotUrl, // ✅ Correct parameter name
+      bookingId: supabaseResult.booking.id.toString(), // ✅ Correct parameter name
     })
 
-    if (!bookingResult.success) {
-      return { success: false, message: `Booking failed: ${bookingResult.message}` }
+    if (!telegramResult.success) {
+      console.error("Telegram notification failed:", telegramResult.error)
+      // Don't fail the booking if Telegram fails, just log it
     }
 
-    // 3. Update booked seats in trips table
-    // First, get the current trip data to calculate new booked seats
-    const { data: tripData, error: tripError } = await supabase
-      .from("trips")
-      .select("total_seats, booked_seats")
-      .eq("id", tripId)
-      .single()
-
-    if (tripError || !tripData) {
-      console.error("Failed to fetch trip data for seat update:", tripError?.message || "No trip data")
-      // Even if seat update fails, the booking is recorded.
-      // In a real app, you might want to roll back the booking or flag for manual review.
-      return { success: true, message: "Booking created, but failed to update seat count. Please contact support." }
+    // Update trip booked seats
+    const seatUpdateResult = await incrementTripBookedSeats(tripId, numTravelers)
+    if (!seatUpdateResult.success) {
+      console.error("Failed to update trip seats:", seatUpdateResult.message)
+      // Don't fail the booking if seat update fails
     }
 
-    const currentBookedSeats = tripData.booked_seats ?? 0
-    const totalSeats = tripData.total_seats ?? 0
-    const newBookedSeats = currentBookedSeats + numTravelers
+    // Revalidate relevant paths
+    revalidatePath("/")
+    revalidatePath("/trips")
+    revalidatePath(`/trips/${tripId}`)
 
-    if (newBookedSeats > totalSeats) {
-      // This should ideally be caught client-side, but as a server-side safeguard
-      return { success: false, message: "Not enough seats available for this booking." }
+    return {
+      success: true,
+      message: `Booking confirmed! Your booking ID is ${supabaseResult.booking.id}. We'll review your payment and confirm shortly.`,
+      bookingId: supabaseResult.booking.id,
     }
-
-    const updateSeatsResult = await updateTripBookedSeats(tripId, newBookedSeats)
-
-    if (!updateSeatsResult.success) {
-      console.error("Failed to update trip seats:", updateSeatsResult.message)
-      // Booking is still created, but seats might be out of sync.
-      return { success: true, message: "Booking created, but failed to update seat count. Please contact support." }
+  } catch (error) {
+    console.error("Booking creation error:", error)
+    return {
+      success: false,
+      message: "An unexpected error occurred. Please try again later.",
     }
-
-    // Revalidate the trip detail page to show updated seat count
-    revalidatePath(`/trip/${tripId}`)
-    revalidatePath(`/compare`) // Also revalidate compare page if it shows seat counts
-    revalidatePath(`/`) // Revalidate home page if featured trips show seat counts
-
-    return { success: true, message: "Trip booked successfully! Payment confirmation pending." }
-  } catch (error: any) {
-    console.error("Error in createBookingAction:", error)
-    return { success: false, message: `An unexpected error occurred: ${error.message}` }
   }
 }

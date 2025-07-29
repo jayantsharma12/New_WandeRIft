@@ -42,8 +42,13 @@ export interface Booking {
   num_travelers: number
   payment_method_id?: number
   payment_screenshot_url?: string
+  screenshot_url?: string // ✅ Added for Telegram integration
   booking_status?: string
+  payment_status?: "pending" | "confirmed" | "failed" // ✅ Added for Telegram integration
   booking_date?: string
+  payment_confirmed_at?: string // ✅ Added for Telegram integration
+  trip_destination?: string // ✅ Added for Telegram integration
+  payment_method_name?: string // ✅ Added for Telegram integration
 }
 
 /**
@@ -210,5 +215,171 @@ export async function updateTripBookedSeats(
   } catch (err: any) {
     console.error("Caught error in updateTripBookedSeats:", err)
     return { success: false, message: `An unexpected error occurred: ${err.message}` }
+  }
+}
+
+// ==========================================
+// ✅ NEW FUNCTIONS FOR TELEGRAM INTEGRATION
+// ==========================================
+
+/**
+ * Alias for getTripById (for server actions)
+ */
+export async function getTrip(id: number): Promise<Trip | null> {
+  return await getTripById(id)
+}
+
+/**
+ * Fetches a single payment method by ID
+ */
+export async function getPaymentMethod(id: number): Promise<PaymentMethod | null> {
+  try {
+    const { data, error } = await supabase.from("payment_methods").select("*").eq("id", id).single()
+
+    if (error) {
+      console.error(`Error fetching payment method with ID ${id}:`, error.message)
+      if (error.code === "PGRST116") {
+        return null
+      }
+      throw new Error(`Failed to fetch payment method: ${error.message}`)
+    }
+    return data as PaymentMethod
+  } catch (err) {
+    console.error("Caught error in getPaymentMethod:", err)
+    throw err
+  }
+}
+
+/**
+ * Updates trip booked seats by adding new travelers
+ */
+export async function incrementTripBookedSeats(
+  tripId: number,
+  additionalTravelers: number,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const trip = await getTripById(tripId)
+    if (!trip) {
+      return { success: false, message: "Trip not found" }
+    }
+
+    const newBookedSeats = (trip.booked_seats || 0) + additionalTravelers
+    return await updateTripBookedSeats(tripId, newBookedSeats)
+  } catch (err: any) {
+    console.error("Caught error in incrementTripBookedSeats:", err)
+    return { success: false, message: `An unexpected error occurred: ${err.message}` }
+  }
+}
+
+// ==========================================
+// SERVER-SIDE FUNCTIONS (for Admin/API use)
+// ==========================================
+
+import { createClient } from "@supabase/supabase-js"
+
+// Server-side client with service role key
+const getServerSupabase = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error("Missing server-side Supabase environment variables")
+  }
+
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
+}
+
+/**
+ * SERVER-SIDE: Save booking with full permissions
+ */
+export async function saveBookingToDatabase(bookingData: Booking) {
+  try {
+    const supabaseServer = getServerSupabase()
+
+    const { data, error } = await supabaseServer
+      .from("bookings")
+      .insert([
+        {
+          ...bookingData,
+          booking_date: new Date().toISOString(),
+          booking_status: "pending",
+          payment_screenshot_url: bookingData.screenshot_url,
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Server-side booking save error:", error)
+      throw error
+    }
+
+    return { success: true, booking: data }
+  } catch (error) {
+    console.error("Database save error:", error)
+    throw error
+  }
+}
+
+/**
+ * SERVER-SIDE: Confirm payment with admin permissions
+ */
+export async function confirmPaymentInDatabase(bookingId: string) {
+  try {
+    const supabaseServer = getServerSupabase()
+
+    const { data, error } = await supabaseServer
+      .from("bookings")
+      .update({
+        payment_status: "confirmed",
+        booking_status: "confirmed",
+        payment_confirmed_at: new Date().toISOString(),
+      })
+      .eq("id", bookingId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Payment confirmation error:", error)
+      throw error
+    }
+
+    return { success: true, booking: data }
+  } catch (error) {
+    console.error("Payment confirmation error:", error)
+    throw error
+  }
+}
+
+/**
+ * SERVER-SIDE: Get all bookings with admin permissions
+ */
+export async function getAllBookingsFromDatabase() {
+  try {
+    const supabaseServer = getServerSupabase()
+
+    const { data, error } = await supabaseServer
+      .from("bookings")
+      .select(`
+        *,
+        trips:trip_id(destination, cost),
+        payment_methods:payment_method_id(name, type)
+      `)
+      .order("booking_date", { ascending: false })
+
+    if (error) {
+      console.error("Fetch bookings error:", error)
+      throw error
+    }
+
+    return { success: true, bookings: data }
+  } catch (error) {
+    console.error("Fetch bookings error:", error)
+    throw error
   }
 }

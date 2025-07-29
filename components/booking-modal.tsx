@@ -1,9 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -12,8 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, CheckCircle2, XCircle, IndianRupee, QrCode, Banknote } from "lucide-react"
 import { type Trip, type PaymentMethod, getPaymentMethods } from "@/lib/data"
@@ -93,6 +92,7 @@ export default function BookingModal({ trip }: BookingModalProps) {
     }
 
     try {
+      // Create FormData for server action (यहाँ change किया है)
       const formDataToSend = new FormData()
       formDataToSend.append("tripId", String(trip.id))
       formDataToSend.append("userName", formData.userName)
@@ -100,17 +100,34 @@ export default function BookingModal({ trip }: BookingModalProps) {
       formDataToSend.append("userPhone", formData.userPhone)
       formDataToSend.append("numTravelers", formData.numTravelers)
       formDataToSend.append("paymentMethodId", formData.paymentMethodId)
+
+      // Add file if exists
       if (formData.paymentScreenshot) {
         formDataToSend.append("paymentScreenshot", formData.paymentScreenshot)
       }
 
+      // Call server action with FormData
       const result = await createBookingAction(formDataToSend)
 
       if (result.success) {
         setBookingStatus("success")
         setMessage(result.message)
-        // Optionally reset form or close modal after success
-        // setIsOpen(false);
+
+        // Reset form after successful booking
+        setTimeout(() => {
+          setFormData({
+            userName: "",
+            userEmail: "",
+            userPhone: "",
+            numTravelers: "1",
+            paymentMethodId: paymentMethods.length > 0 ? String(paymentMethods[0].id) : "",
+            paymentScreenshot: null,
+          })
+          setBookingStatus("idle")
+          setMessage("")
+          // Optionally close modal after 3 seconds
+          // setIsOpen(false)
+        }, 3000)
       } else {
         setBookingStatus("error")
         setMessage(result.message)
@@ -127,6 +144,7 @@ export default function BookingModal({ trip }: BookingModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
+        {/* Book Now button - बिल्कुल same रखा है */}
         <Button className="w-full bg-brand-red hover:bg-brand-red/90" size="lg" disabled={!availableSeats}>
           {availableSeats > 0 ? (
             <>
@@ -243,15 +261,20 @@ export default function BookingModal({ trip }: BookingModalProps) {
           </div>
 
           {bookingStatus === "success" && (
-            <div className="flex items-center text-green-600 mt-4">
+            <div className="flex items-center text-green-600 mt-4 p-3 bg-green-50 rounded-md border border-green-200">
               <CheckCircle2 className="h-5 w-5 mr-2" />
-              {message}
+              <div>
+                <p className="font-medium">{message}</p>
+                <p className="text-sm text-green-700 mt-1">
+                  📱 Booking details have been sent to our team via Telegram for confirmation!
+                </p>
+              </div>
             </div>
           )}
           {bookingStatus === "error" && (
-            <div className="flex items-center text-red-600 mt-4">
+            <div className="flex items-center text-red-600 mt-4 p-3 bg-red-50 rounded-md border border-red-200">
               <XCircle className="h-5 w-5 mr-2" />
-              {message}
+              <p>{message}</p>
             </div>
           )}
 
