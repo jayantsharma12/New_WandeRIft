@@ -9,6 +9,17 @@ interface BookingData {
   submittedAt: string
 }
 
+export interface TelegramBookingData {
+  tripDestination: string
+  userName: string
+  userPhone: string
+  userEmail: string
+  numTravelers: string
+  paymentMethod: string
+  screenshotUrl: string
+  bookingId: string
+}
+
 interface BookingDetails {
   tripDestination: string
   userName: string
@@ -220,116 +231,133 @@ export async function sendToTelegram(bookingData: BookingData) {
 }
 
 // New improved booking notification function
-export async function sendBookingToTelegram(bookingDetails: BookingDetails) {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN
-  const chatId = process.env.TELEGRAM_CHAT_ID
-
-  if (!botToken || !chatId) {
-    console.error("Telegram credentials not configured")
-    return { success: false, error: "Telegram not configured" }
-  }
-
-  // Validate bot token format
-  if (!validateBotToken(botToken)) {
-    return {
-      success: false,
-      error: "Invalid bot token format. Bot token should be in format: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz",
-    }
-  }
-
-  // Validate chat ID
-  const chatIdValidation = validateChatId(chatId, botToken)
-  if (!chatIdValidation.valid) {
-    return {
-      success: false,
-      error: chatIdValidation.error,
-    }
-  }
-
-  // Format booking message
-  const message = `🎯 *New Booking Received - WanderRift*
-
-🏔️ *Trip Details:*
-• Destination: ${bookingDetails.tripDestination}
-• Travelers: ${bookingDetails.numTravelers} person(s)
-
-👤 *Customer Details:*
-• Name: ${bookingDetails.userName}
-• Phone: ${bookingDetails.userPhone}
-• Email: ${bookingDetails.userEmail}
-
-💳 *Payment Details:*
-• Method: ${bookingDetails.paymentMethod}
-• Status: Pending Confirmation
-
-🆔 *Booking ID:* ${bookingDetails.bookingId || "N/A"}
-⏰ *Booking Time:* ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
-
-📸 Payment screenshot attached below ⬇️
-  `
-
+export async function sendBookingToTelegram(bookingData: TelegramBookingData) {
   try {
-    // Send text message first
-    const textResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
+    const CHAT_ID = process.env.TELEGRAM_CHAT_ID
+
+    console.log("Telegram credentials check:", {
+      hasBotToken: !!BOT_TOKEN,
+      hasChatId: !!CHAT_ID,
+      botTokenLength: BOT_TOKEN?.length || 0,
+      chatIdValue: CHAT_ID || "not set",
+    })
+
+    // Check if Telegram credentials are configured
+    if (!BOT_TOKEN || !CHAT_ID) {
+      console.log("Telegram notification skipped: credentials not configured")
+      return {
+        success: false,
+        error: "Telegram not configured",
+        isSilentError: true,
+      }
+    }
+
+    // Check for placeholder values
+    if (CHAT_ID === "your_personal_chat_id_here" || CHAT_ID === "your_chat_id_here") {
+      console.log("Telegram notification skipped: chat ID not configured (still using placeholder)")
+      return {
+        success: false,
+        error: "Telegram chat ID not configured - still using placeholder value",
+        isSilentError: true,
+      }
+    }
+
+    // Validate chat ID format (should be a number or a string starting with -)
+    if (!/^-?\d+$/.test(CHAT_ID)) {
+      console.error("Invalid Telegram chat ID format:", CHAT_ID)
+      return {
+        success: false,
+        error: `Invalid chat ID format: ${CHAT_ID}. Chat ID should be a number (e.g., 123456789 or -123456789)`,
+        isSilentError: true,
+      }
+    }
+
+    // Format message for booking
+    const messageText = `
+🎯 *New Trip Booking Received\\!*
+
+🆔 *Booking ID:* ${bookingData.bookingId.replace(/[_*[\]()~`>#+=|{}.!-]/g, "\\$&")}
+🏖️ *Destination:* ${bookingData.tripDestination.replace(/[_*[\]()~`>#+=|{}.!-]/g, "\\$&")}
+👤 *Name:* ${bookingData.userName.replace(/[_*[\]()~`>#+=|{}.!-]/g, "\\$&")}
+📧 *Email:* ${bookingData.userEmail.replace(/[_*[\]()~`>#+=|{}.!-]/g, "\\$&")}
+📞 *Phone:* ${bookingData.userPhone.replace(/[_*[\]()~`>#+=|{}.!-]/g, "\\$&")}
+👥 *Travelers:* ${bookingData.numTravelers.replace(/[_*[\]()~`>#+=|{}.!-]/g, "\\$&")}
+💳 *Payment Method:* ${bookingData.paymentMethod.replace(/[_*[\]()~`>#+=|{}.!-]/g, "\\$&")}
+⏰ *Submitted:* ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
+
+📸 *Payment Screenshot:* [View Image](${bookingData.screenshotUrl})
+    `.trim()
+
+    console.log("Sending Telegram message to chat ID:", CHAT_ID)
+
+    // Send text message
+    const textResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: "Markdown",
+        chat_id: CHAT_ID,
+        text: messageText,
+        parse_mode: "MarkdownV2",
+        disable_web_page_preview: false,
       }),
     })
 
+    const textResult = await textResponse.json()
+    console.log("Telegram API response:", textResult)
+
     if (!textResponse.ok) {
-      const errorData = await textResponse.json()
-      console.error("Telegram text message error:", errorData)
+      console.error("Telegram API Error:", textResult)
 
-      // Provide specific error messages
-      if (errorData.error_code === 403 && errorData.description?.includes("bots can't send messages to bots")) {
-        const botId = getBotIdFromToken(botToken)
+      // For chat not found errors, provide more helpful information
+      if (textResult.error_code === 400 && textResult.description?.includes("chat not found")) {
+        console.error("Chat not found. Make sure the bot has been started and the chat ID is correct.")
         return {
           success: false,
-          error: `You're trying to send messages to the bot itself (ID: ${botId}). You need to use YOUR personal chat ID, not the bot's ID.`,
+          error: "Telegram chat not found. Please check your TELEGRAM_CHAT_ID configuration.",
+          isSilentError: true,
         }
       }
 
-      if (errorData.error_code === 400 && errorData.description?.includes("chat not found")) {
-        return {
-          success: false,
-          error: `Chat not found. Please make sure you've started a conversation with your bot and the chat ID is correct.`,
-        }
+      return {
+        success: false,
+        error: textResult.description || "Unknown Telegram error",
+        isSilentError: true,
       }
-
-      return { success: false, error: "Failed to send message" }
     }
 
-    // Send screenshot if available
-    if (bookingDetails.screenshotUrl) {
-      const photoResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+    // Send screenshot as photo
+    try {
+      const photoResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          chat_id: chatId,
-          photo: bookingDetails.screenshotUrl,
-          caption: `💳 Payment Screenshot\n👤 Customer: ${bookingDetails.userName}\n🎯 Trip: ${bookingDetails.tripDestination}`,
+          chat_id: CHAT_ID,
+          photo: bookingData.screenshotUrl,
+          caption: `💳 Payment screenshot from ${bookingData.userName}'s booking`,
         }),
       })
 
       if (!photoResponse.ok) {
-        const errorData = await photoResponse.json()
-        console.error("Telegram photo error:", errorData)
-        // Don't fail the whole process if photo fails
+        console.error("Photo send failed:", await photoResponse.json())
       }
+    } catch (photoError) {
+      console.error("Photo send error:", photoError)
     }
 
+    console.log("Telegram notification sent successfully")
     return { success: true }
   } catch (error) {
-    console.error("Telegram API Error:", error)
-    return { success: false, error: "Network error" }
+    console.error("Telegram send error:", error)
+    return {
+      success: false,
+      error: "Network error",
+      isSilentError: true,
+    }
   }
 }
 

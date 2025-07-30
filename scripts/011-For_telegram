@@ -1,0 +1,108 @@
+-- Create trips table (if not exists)
+CREATE TABLE IF NOT EXISTS trips (
+  id SERIAL PRIMARY KEY,
+  destination VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  price INTEGER NOT NULL,
+  duration VARCHAR(100),
+  days INTEGER,
+  budget VARCHAR(50) CHECK (budget IN ('Budget', 'Moderate', 'Luxury')),
+  cost INTEGER,
+  rating DECIMAL(2,1) DEFAULT 0,
+  interests TEXT[], -- Array of interests
+  itinerary TEXT[], -- Array of itinerary items
+  highlights TEXT[], -- Array of highlights
+  included TEXT[], -- Array of included items
+  image_url TEXT,
+  total_seats INTEGER DEFAULT 20,
+  booked_seats INTEGER DEFAULT 0,
+  start_date DATE,
+  end_date DATE,
+  departure_date DATE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create reviews table (if not exists)
+CREATE TABLE IF NOT EXISTS reviews (
+  id SERIAL PRIMARY KEY,
+  trip_id INTEGER REFERENCES trips(id) ON DELETE CASCADE,
+  user_name VARCHAR(255) NOT NULL,
+  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create payment_methods table (if not exists)
+CREATE TABLE IF NOT EXISTS payment_methods (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  type VARCHAR(50) CHECK (type IN ('UPI', 'QR_CODE', 'BANK_TRANSFER')),
+  value TEXT NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create bookings table (if not exists)
+CREATE TABLE IF NOT EXISTS bookings (
+  id VARCHAR(50) PRIMARY KEY,
+  trip_id INTEGER REFERENCES trips(id) ON DELETE CASCADE,
+  user_name VARCHAR(255) NOT NULL,
+  user_email VARCHAR(255) NOT NULL,
+  user_phone VARCHAR(20),
+  num_travelers INTEGER NOT NULL,
+  payment_method_id INTEGER REFERENCES payment_methods(id),
+  payment_screenshot_url TEXT,
+  screenshot_url TEXT,
+  booking_status VARCHAR(50) DEFAULT 'pending',
+  payment_status VARCHAR(50) DEFAULT 'pending' CHECK (payment_status IN ('pending', 'confirmed', 'failed')),
+  booking_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  payment_confirmed_at TIMESTAMP WITH TIME ZONE,
+  trip_destination VARCHAR(255),
+  payment_method_name VARCHAR(255),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert sample trips data
+INSERT INTO trips (destination, title, description, price, duration, days, budget, cost, rating, interests, itinerary, highlights, included, total_seats, booked_seats, departure_date) VALUES
+('Manali', 'Himalayan Adventure', 'Experience the breathtaking beauty of the Himalayas', 15000, '5 days', 5, 'Moderate', 15000, 4.5, 
+ ARRAY['Adventure', 'Mountains', 'Nature'], 
+ ARRAY['Day 1: Arrival in Manali', 'Day 2: Rohtang Pass', 'Day 3: Solang Valley', 'Day 4: Hadimba Temple', 'Day 5: Departure'],
+ ARRAY['Rohtang Pass', 'Solang Valley', 'Hadimba Temple'],
+ ARRAY['Accommodation', 'Meals', 'Transportation', 'Guide'],
+ 20, 5, '2024-03-15'),
+
+('Goa', 'Beach Paradise', 'Relax on pristine beaches and enjoy vibrant nightlife', 12000, '4 days', 4, 'Budget', 12000, 4.2,
+ ARRAY['Beach', 'Nightlife', 'Relaxation'],
+ ARRAY['Day 1: Arrival in Goa', 'Day 2: North Goa Beaches', 'Day 3: Old Goa Churches', 'Day 4: Departure'],
+ ARRAY['Baga Beach', 'Old Goa Churches', 'Spice Plantation'],
+ ARRAY['Beach Resort', 'Breakfast', 'Airport Transfer'],
+ 25, 8, '2024-03-20'),
+
+('Rajasthan', 'Royal Heritage Tour', 'Discover the royal palaces and desert landscapes', 25000, '7 days', 7, 'Luxury', 25000, 4.8,
+ ARRAY['Heritage', 'Culture', 'Desert'],
+ ARRAY['Day 1: Arrival in Jaipur', 'Day 2: Jaipur Palace', 'Day 3: Travel to Udaipur', 'Day 4: Udaipur Lakes', 'Day 5: Travel to Jaisalmer', 'Day 6: Desert Safari', 'Day 7: Departure'],
+ ARRAY['Jaipur Palace', 'Udaipur Lakes', 'Jaisalmer Desert'],
+ ARRAY['Heritage Hotels', 'All Meals', 'Camel Safari', 'Guide'],
+ 15, 12, '2024-04-01')
+ON CONFLICT (id) DO NOTHING;
+
+-- Insert sample payment methods
+INSERT INTO payment_methods (name, type, value, is_active) VALUES
+('Google Pay', 'UPI', 'wanderrift@okaxis', true),
+('PhonePe', 'UPI', '9876543210@ybl', true),
+('Payment QR Code', 'QR_CODE', '/placeholder.svg?height=200&width=200&text=QR+Code', true),
+('Bank Transfer', 'BANK_TRANSFER', 'Account: 1234567890, IFSC: AXIS0001234, Bank: Axis Bank', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Insert sample reviews
+INSERT INTO reviews (trip_id, user_name, rating, comment) VALUES
+(1, 'Rahul Sharma', 5, 'Amazing experience in Manali! The mountains were breathtaking.'),
+(1, 'Priya Patel', 4, 'Great trip overall, loved the adventure activities.'),
+(2, 'Amit Kumar', 4, 'Goa beaches were beautiful, perfect for relaxation.'),
+(2, 'Sneha Reddy', 5, 'Best beach vacation ever! Highly recommended.'),
+(3, 'Vikram Singh', 5, 'Royal treatment throughout the trip. Rajasthan is magical!'),
+(3, 'Anita Gupta', 4, 'Heritage hotels were amazing, desert safari was unforgettable.')
+ON CONFLICT (id) DO NOTHING;

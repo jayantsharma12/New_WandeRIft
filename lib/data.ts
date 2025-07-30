@@ -17,12 +17,12 @@ export interface Trip {
   rating: number
   interests: string[]
   itinerary: string[]
-  image_url?: string // New: Optional image URL for the trip
-  total_seats?: number // New: Total available seats
-  booked_seats?: number // New: Number of booked seats
-  start_date?: string // New: Start date of the trip
-  end_date?: string // New: End date of the trip
-  reviews?: Review[] // Optional, will be fetched separately or joined
+  image_url?: string
+  total_seats?: number
+  booked_seats?: number
+  start_date?: string
+  end_date?: string
+  reviews?: Review[]
 }
 
 export interface PaymentMethod {
@@ -42,13 +42,13 @@ export interface Booking {
   num_travelers: number
   payment_method_id?: number
   payment_screenshot_url?: string
-  screenshot_url?: string // ✅ Added for Telegram integration
+  screenshot_url?: string
   booking_status?: string
-  payment_status?: "pending" | "confirmed" | "failed" // ✅ Added for Telegram integration
+  payment_status?: "pending" | "confirmed" | "failed"
   booking_date?: string
-  payment_confirmed_at?: string // ✅ Added for Telegram integration
-  trip_destination?: string // ✅ Added for Telegram integration
-  payment_method_name?: string // ✅ Added for Telegram integration
+  payment_confirmed_at?: string
+  trip_destination?: string
+  payment_method_name?: string
 }
 
 /**
@@ -57,7 +57,6 @@ export interface Booking {
 export async function getTrips(): Promise<Trip[]> {
   try {
     const { data, error } = await supabase.from("trips").select("*").order("id", { ascending: true })
-
     if (error) {
       console.error("Supabase error fetching trips:", error)
       console.error("Error message:", error.message)
@@ -67,7 +66,7 @@ export async function getTrips(): Promise<Trip[]> {
     return data as Trip[]
   } catch (err) {
     console.error("Caught error in getTrips:", err)
-    throw err // Re-throw to be caught by calling component
+    throw err
   }
 }
 
@@ -77,13 +76,11 @@ export async function getTrips(): Promise<Trip[]> {
 export async function getTripById(id: number): Promise<Trip | null> {
   try {
     const { data: tripData, error: tripError } = await supabase.from("trips").select("*").eq("id", id).single()
-
     if (tripError) {
       console.error(`Supabase error fetching trip with ID ${id}:`, tripError)
       console.error("Error message:", tripError.message)
       console.error("Error code:", tripError.code)
       if (tripError.code === "PGRST116") {
-        // No rows found
         return null
       }
       throw new Error(`Failed to fetch trip: ${tripError.message}`)
@@ -94,19 +91,17 @@ export async function getTripById(id: number): Promise<Trip | null> {
     }
 
     const { data: reviewsData, error: reviewsError } = await supabase.from("reviews").select("*").eq("trip_id", id)
-
     if (reviewsError) {
       console.error(`Supabase error fetching reviews for trip ID ${id}:`, reviewsError)
       console.error("Error message:", reviewsError.message)
       console.error("Error code:", reviewsError.code)
-      // Still return trip data even if reviews fail
       return { ...tripData, reviews: [] } as Trip
     }
 
     return { ...tripData, reviews: reviewsData } as Trip
   } catch (err) {
     console.error("Caught error in getTripById:", err)
-    throw err // Re-throw to be caught by calling component
+    throw err
   }
 }
 
@@ -138,7 +133,6 @@ export async function getAllReviews(): Promise<
       throw new Error(`Failed to fetch reviews: ${error.message}`)
     }
 
-    // Map the data to the desired structure
     return data.map((review) => ({
       id: review.id,
       trip_id: review.trip_id,
@@ -151,7 +145,7 @@ export async function getAllReviews(): Promise<
     })) as (Review & { destination: string; tripDays: number; tripBudget: string })[]
   } catch (err) {
     console.error("Caught error in getAllReviews:", err)
-    throw err // Re-throw to be caught by calling component
+    throw err
   }
 }
 
@@ -161,7 +155,6 @@ export async function getAllReviews(): Promise<
 export async function getPaymentMethods(): Promise<PaymentMethod[]> {
   try {
     const { data, error } = await supabase.from("payment_methods").select("*").eq("is_active", true)
-
     if (error) {
       console.error("Error fetching payment methods:", error.message)
       throw new Error(`Failed to fetch payment methods: ${error.message}`)
@@ -178,15 +171,23 @@ export async function getPaymentMethods(): Promise<PaymentMethod[]> {
  */
 export async function createBooking(
   booking: Omit<Booking, "id" | "booking_date">,
-): Promise<{ success: boolean; message: string }> {
+): Promise<{ success: boolean; message: string; booking?: Booking }> {
   try {
-    const { data, error } = await supabase.from("bookings").insert([booking]).select()
+    const bookingData = {
+      ...booking,
+      booking_date: new Date().toISOString(),
+      booking_status: "pending",
+      payment_status: "pending" as const,
+    }
+
+    const { data, error } = await supabase.from("bookings").insert([bookingData]).select().single()
 
     if (error) {
       console.error("Error creating booking:", error.message)
       return { success: false, message: `Failed to create booking: ${error.message}` }
     }
-    return { success: true, message: "Booking created successfully!" }
+
+    return { success: true, message: "Booking created successfully!", booking: data as Booking }
   } catch (err: any) {
     console.error("Caught error in createBooking:", err)
     return { success: false, message: `An unexpected error occurred: ${err.message}` }
@@ -211,16 +212,13 @@ export async function updateTripBookedSeats(
       console.error(`Error updating booked seats for trip ${tripId}:`, error.message)
       return { success: false, message: `Failed to update seats: ${error.message}` }
     }
+
     return { success: true, message: "Seats updated successfully!" }
   } catch (err: any) {
     console.error("Caught error in updateTripBookedSeats:", err)
     return { success: false, message: `An unexpected error occurred: ${err.message}` }
   }
 }
-
-// ==========================================
-// ✅ NEW FUNCTIONS FOR TELEGRAM INTEGRATION
-// ==========================================
 
 /**
  * Alias for getTripById (for server actions)
@@ -235,7 +233,6 @@ export async function getTrip(id: number): Promise<Trip | null> {
 export async function getPaymentMethod(id: number): Promise<PaymentMethod | null> {
   try {
     const { data, error } = await supabase.from("payment_methods").select("*").eq("id", id).single()
-
     if (error) {
       console.error(`Error fetching payment method with ID ${id}:`, error.message)
       if (error.code === "PGRST116") {
@@ -271,13 +268,9 @@ export async function incrementTripBookedSeats(
   }
 }
 
-// ==========================================
-// SERVER-SIDE FUNCTIONS (for Admin/API use)
-// ==========================================
-
+// SERVER-SIDE FUNCTIONS
 import { createClient } from "@supabase/supabase-js"
 
-// Server-side client with service role key
 const getServerSupabase = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -300,7 +293,6 @@ const getServerSupabase = () => {
 export async function saveBookingToDatabase(bookingData: Booking) {
   try {
     const supabaseServer = getServerSupabase()
-
     const { data, error } = await supabaseServer
       .from("bookings")
       .insert([
@@ -308,6 +300,7 @@ export async function saveBookingToDatabase(bookingData: Booking) {
           ...bookingData,
           booking_date: new Date().toISOString(),
           booking_status: "pending",
+          payment_status: "pending",
           payment_screenshot_url: bookingData.screenshot_url,
         },
       ])
@@ -332,7 +325,6 @@ export async function saveBookingToDatabase(bookingData: Booking) {
 export async function confirmPaymentInDatabase(bookingId: string) {
   try {
     const supabaseServer = getServerSupabase()
-
     const { data, error } = await supabaseServer
       .from("bookings")
       .update({
@@ -362,7 +354,6 @@ export async function confirmPaymentInDatabase(bookingId: string) {
 export async function getAllBookingsFromDatabase() {
   try {
     const supabaseServer = getServerSupabase()
-
     const { data, error } = await supabaseServer
       .from("bookings")
       .select(`

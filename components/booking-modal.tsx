@@ -263,7 +263,7 @@ export default function BookingModal({ trip }: BookingModalProps) {
                     <p>Your booking is confirmed, but admin won't receive automatic notification.</p>
                     <p className="mt-1">
                       <a href="/admin/telegram-setup" className="text-blue-600 hover:underline">
-                        Configure Telegram notifications →
+                        Configure Telegram notifications ��
                       </a>
                     </p>
                   </div>
