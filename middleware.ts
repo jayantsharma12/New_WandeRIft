@@ -1,7 +1,19 @@
 // middleware.ts
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default clerkMiddleware();
+// Define public routes (routes that don't require authentication)
+const isPublicRoute = createRouteMatcher([
+  '/', // Only the main/home page is public
+  '/sign-in(.*)', // Clerk sign-in pages
+  '/sign-up(.*)', // Clerk sign-up pages
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+  // If the route is not public, protect it
+  if (!isPublicRoute(req)) {
+    await auth.protect();
+  }
+});
 
 export const config = {
   matcher: [
@@ -11,6 +23,3 @@ export const config = {
     "/(api|trpc)(.*)",
   ],
 };
-// This middleware will run for all routes except those specified in the matcher
-// It ensures that Clerk authentication is applied to all pages and API routes
-// Adjust the matcher as needed to include or exclude specific paths

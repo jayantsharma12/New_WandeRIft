@@ -9,6 +9,7 @@ export interface Review {
 }
 
 export interface Trip {
+  title: any
   id: number
   destination: string
   days: number

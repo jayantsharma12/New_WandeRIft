@@ -34,31 +34,55 @@ export default function ItineraryPage() {
   const searchParams = useSearchParams()
   const [generatedData, setGeneratedData] = useState<GeneratedItinerary | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
   const destination = searchParams.get("destination") || ""
   const days = Number.parseInt(searchParams.get("days") || "0")
   const budget = searchParams.get("budget") || ""
   const travelers = Number.parseInt(searchParams.get("travelers") || "1")
-  const interests = searchParams.get("interests")?.split(",") || []
+  const interests = searchParams.get("interests")?.split(",").filter(Boolean) || []
 
   useEffect(() => {
-    const storedItinerary = sessionStorage.getItem("generatedItinerary")
+    try {
+      const storedItinerary = sessionStorage.getItem("generatedItinerary")
 
-    if (storedItinerary) {
-      try {
+      if (storedItinerary) {
         const parsed = JSON.parse(storedItinerary)
         setGeneratedData(parsed)
-      } catch (error) {
-        console.error("Error parsing stored itinerary:", error)
+      } else {
+        setError("No itinerary data found. Please generate a new itinerary.")
       }
+    } catch (error) {
+      console.error("Error parsing stored itinerary:", error)
+      setError("Error loading itinerary data. Please generate a new itinerary.")
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }, [])
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-red"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-red mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your adventure itinerary...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !generatedData) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Oops!</h2>
+            <p className="text-gray-600 mb-6">{error || "No itinerary data available."}</p>
+            <Button asChild className="bg-brand-red hover:bg-brand-red/90">
+              <Link href="/planner">Generate New Itinerary</Link>
+            </Button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -132,7 +156,7 @@ export default function ItineraryPage() {
                 <CardTitle className="text-brand-black">Adventure Itinerary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-8 p-8">
-                {generatedData?.itinerary.map((day, index) => (
+                {generatedData.itinerary.map((day, index) => (
                   <div key={index} className="border-l-4 border-brand-red pl-8 pb-8 last:pb-0">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="bg-brand-red text-white rounded-full w-10 h-10 flex items-center justify-center text-sm font-bold">
@@ -176,14 +200,7 @@ export default function ItineraryPage() {
                       ))}
                     </div>
                   </div>
-                )) || (
-                  <div className="text-center py-12">
-                    <p className="text-gray-500 mb-4">No itinerary data available.</p>
-                    <Button asChild className="bg-brand-red hover:bg-brand-red/90">
-                      <Link href="/planner">Generate New Itinerary</Link>
-                    </Button>
-                  </div>
-                )}
+                ))}
               </CardContent>
             </Card>
           </div>
@@ -197,26 +214,26 @@ export default function ItineraryPage() {
                 <div className="space-y-4">
                   <div className="text-center">
                     <p className="text-3xl font-bold text-brand-black">
-                      ₹{generatedData?.total_estimated_cost?.toLocaleString() || "0"}
+                      ₹{generatedData.total_estimated_cost?.toLocaleString() || "0"}
                     </p>
                     <p className="text-gray-500">Total Estimated Cost</p>
                   </div>
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between">
                       <span>Accommodation (40%)</span>
-                      <span>₹{Math.round((generatedData?.total_estimated_cost || 0) * 0.4).toLocaleString()}</span>
+                      <span>₹{Math.round((generatedData.total_estimated_cost || 0) * 0.4).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Food & Dining (30%)</span>
-                      <span>₹{Math.round((generatedData?.total_estimated_cost || 0) * 0.3).toLocaleString()}</span>
+                      <span>₹{Math.round((generatedData.total_estimated_cost || 0) * 0.3).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Activities & Entry Fees (20%)</span>
-                      <span>₹{Math.round((generatedData?.total_estimated_cost || 0) * 0.2).toLocaleString()}</span>
+                      <span>₹{Math.round((generatedData.total_estimated_cost || 0) * 0.2).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Transportation (10%)</span>
-                      <span>₹{Math.round((generatedData?.total_estimated_cost || 0) * 0.1).toLocaleString()}</span>
+                      <span>₹{Math.round((generatedData.total_estimated_cost || 0) * 0.1).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -229,12 +246,16 @@ export default function ItineraryPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {generatedData?.educational_highlights.map((highlight, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-brand-red rounded-full mt-2" />
-                      <span className="text-sm text-gray-700">{highlight}</span>
-                    </div>
-                  )) || <p className="text-gray-500 text-sm">Adventure highlights will appear here</p>}
+                  {generatedData.educational_highlights?.length > 0 ? (
+                    generatedData.educational_highlights.map((highlight, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div className="w-2 h-2 bg-brand-red rounded-full mt-2" />
+                        <span className="text-sm text-gray-700">{highlight}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-sm">Adventure highlights will appear here</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -245,30 +266,36 @@ export default function ItineraryPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {generatedData?.cultural_insights.map((insight, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-brand-blue rounded-full mt-2" />
-                      <span className="text-sm text-gray-700">{insight}</span>
-                    </div>
-                  )) || <p className="text-gray-500 text-sm">Cultural insights will appear here</p>}
+                  {generatedData.cultural_insights?.length > 0 ? (
+                    generatedData.cultural_insights.map((insight, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+                        <span className="text-sm text-gray-700">{insight}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-sm">Cultural insights will appear here</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-brand-black">Your Interests</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {interests.map((interest) => (
-                    <Badge key={interest} variant="secondary" className="bg-brand-green/10 text-brand-green">
-                      {interest}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {interests.length > 0 && (
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-brand-black">Your Interests</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {interests.map((interest) => (
+                      <Badge key={interest} variant="secondary" className="bg-green-100 text-green-700">
+                        {interest}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
