@@ -2,6 +2,7 @@
   "name": "eduwanders-travel-planner",
   "version": "0.1.0",
   "private": true,
+  "type": "commonjs",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -39,6 +40,7 @@
     "react-dom": "^18",
     "react-resizable-panels": "^3.0.3",
     "recharts": "^3.1.0",
+    "supabase": "^2.33.5",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7"
   },

@@ -1,12 +1,12 @@
 "use client"
 
+import { useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { BookOpen, Calendar, Clock, IndianRupee, MapPin, Users } from "lucide-react"
+import { MapPin, Calendar, IndianRupee, Users, Clock, BookOpen } from "lucide-react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
 
 interface ItineraryActivity {
   time: string

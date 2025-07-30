@@ -16,7 +16,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, CheckCircle2, XCircle, IndianRupee, QrCode, Banknote } from "lucide-react"
 import { type Trip, type PaymentMethod, getPaymentMethods } from "@/lib/data"
-import { createBookingAction } from "@/app/actions" // Import the server action
+import { createBookingAction } from "@/app/actions"
 import Image from "next/image"
 
 interface BookingModalProps {
@@ -92,7 +92,7 @@ export default function BookingModal({ trip }: BookingModalProps) {
     }
 
     try {
-      // Create FormData for server action (यहाँ change किया है)
+      // Create FormData for server action
       const formDataToSend = new FormData()
       formDataToSend.append("tripId", String(trip.id))
       formDataToSend.append("userName", formData.userName)
@@ -112,7 +112,6 @@ export default function BookingModal({ trip }: BookingModalProps) {
       if (result.success) {
         setBookingStatus("success")
         setMessage(result.message)
-
         // Reset form after successful booking
         setTimeout(() => {
           setFormData({
@@ -125,8 +124,6 @@ export default function BookingModal({ trip }: BookingModalProps) {
           })
           setBookingStatus("idle")
           setMessage("")
-          // Optionally close modal after 3 seconds
-          // setIsOpen(false)
         }, 3000)
       } else {
         setBookingStatus("error")
@@ -144,8 +141,7 @@ export default function BookingModal({ trip }: BookingModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        {/* Book Now button - बिल्कुल same रखा है */}
-        <Button className="w-full bg-brand-red hover:bg-brand-red/90" size="lg" disabled={!availableSeats}>
+        <Button className="w-full bg-red-500 hover:bg-red-600" size="lg" disabled={!availableSeats}>
           {availableSeats > 0 ? (
             <>
               <CheckCircle2 className="h-5 w-5 mr-2" />
@@ -199,7 +195,6 @@ export default function BookingModal({ trip }: BookingModalProps) {
               required
             />
           </div>
-
           <div className="grid grid-cols-[120px_1fr] items-center gap-4">
             <Label htmlFor="paymentMethod" className="text-right">
               Payment Method
@@ -217,7 +212,6 @@ export default function BookingModal({ trip }: BookingModalProps) {
               </SelectContent>
             </Select>
           </div>
-
           {selectedPaymentMethod && (
             <div className="col-span-4 p-4 border rounded-md bg-muted/50">
               <h4 className="font-semibold mb-2 flex items-center">
@@ -242,7 +236,6 @@ export default function BookingModal({ trip }: BookingModalProps) {
               <p className="text-xs text-gray-500 mt-2">Please make the payment to the details above.</p>
             </div>
           )}
-
           <div className="grid grid-cols-[120px_1fr] items-center gap-4">
             <Label htmlFor="paymentScreenshot" className="text-right">
               Payment Proof
@@ -259,15 +252,26 @@ export default function BookingModal({ trip }: BookingModalProps) {
               <p className="text-xs text-muted-foreground mt-1">Upload a screenshot of your payment confirmation.</p>
             </div>
           </div>
-
           {bookingStatus === "success" && (
             <div className="flex items-center text-green-600 mt-4 p-3 bg-green-50 rounded-md border border-green-200">
               <CheckCircle2 className="h-5 w-5 mr-2" />
               <div>
                 <p className="font-medium">{message}</p>
-                <p className="text-sm text-green-700 mt-1">
-                  📱 Booking details have been sent to our team via Telegram for confirmation!
-                </p>
+                {message.includes("Admin notification could not be sent") ? (
+                  <div className="text-sm text-amber-700 mt-1 p-2 bg-amber-50 rounded border border-amber-200">
+                    <p>⚠️ Telegram notifications are not configured.</p>
+                    <p>Your booking is confirmed, but admin won't receive automatic notification.</p>
+                    <p className="mt-1">
+                      <a href="/admin/telegram-setup" className="text-blue-600 hover:underline">
+                        Configure Telegram notifications →
+                      </a>
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-green-700 mt-1">
+                    📱 Booking details have been sent to our team for confirmation!
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -277,7 +281,6 @@ export default function BookingModal({ trip }: BookingModalProps) {
               <p>{message}</p>
             </div>
           )}
-
           <Button type="submit" className="w-full mt-6" disabled={isLoading}>
             {isLoading ? (
               <>

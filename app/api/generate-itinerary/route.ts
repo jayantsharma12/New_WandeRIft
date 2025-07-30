@@ -45,7 +45,7 @@ Also provide:
 - 5 cultural insights about the region
 - 3 recommended books/resources about ${destination}
 
-**IMPORTANT:** The entire response MUST be a single, valid JSON object. Do NOT include any text or markdown outside the JSON. Ensure all string values are properly quoted and any internal quotes are escaped (e.g., "It's a great day" should be "It\\'s a great day"). Newlines within string values must be escaped as \\n. Ensure all commas are correctly placed between elements and properties.
+**IMPORTANT:** Your entire response MUST be a single, valid JSON object. Do NOT include any text, markdown fences (like \`\`\`json), or comments outside the JSON. Ensure all string values are properly quoted and any internal quotes are escaped (e.g., "It's a great day" should be "It\\'s a great day"). Newlines within string values must be escaped as \\n. Ensure all commas are correctly placed between elements and properties.
 
 Format as JSON with this exact structure:
 {
@@ -72,94 +72,43 @@ Format as JSON with this exact structure:
 
     let parsedResponse
     let rawText = ""
+    let cleanedText = ""
 
     try {
       const result = await model.generateContent(basePrompt)
       rawText = result.response.text()
 
-      // --- Attempt 1: Minimal Cleaning and Parsing ---
-      const cleanTextStage1 = rawText.trim()
-
-      // Extract JSON block first, ensuring it starts with { and ends with }
-      let jsonBlock = ""
-      const markdownMatch = cleanTextStage1.match(/```json\s*([\s\S]*?)\s*```/)
-      if (markdownMatch && markdownMatch[1]) {
-        jsonBlock = markdownMatch[1].trim() // Trim extracted content
-      } else {
-        const firstBrace = cleanTextStage1.indexOf("{")
-        const lastBrace = cleanTextStage1.lastIndexOf("}")
-        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-          jsonBlock = cleanTextStage1.substring(firstBrace, lastBrace + 1).trim() // Trim extracted content
-        } else {
-          throw new Error("No JSON block found in AI response for stage 1.")
-        }
+      // Clean the raw text: remove markdown fences and trim
+      cleanedText = rawText.trim()
+      if (cleanedText.startsWith("```json")) {
+        cleanedText = cleanedText.substring("```json".length)
       }
-
-      // Remove comments within the extracted block
-      jsonBlock = jsonBlock.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "")
-      // Remove any remaining markdown backticks
-      jsonBlock = jsonBlock.replace(/`/g, "")
-
-      try {
-        parsedResponse = JSON.parse(jsonBlock)
-      } catch (e1) {
-        console.warn("Stage 1 parsing failed, attempting stage 2 cleaning:", e1)
-        console.log("Raw JSON block for stage 2:", jsonBlock.substring(0, 500) + "...")
-
-        // --- Attempt 2: Aggressive Cleaning and Parsing ---
-        let cleanTextStage2 = jsonBlock
-
-        // Remove all newlines and normalize whitespace
-        cleanTextStage2 = cleanTextStage2
-          .replace(/[\r\n]+/g, "")
-          .replace(/\s{2,}/g, " ")
-          .trim()
-
-        // Attempt to add quotes to unquoted keys.
-        cleanTextStage2 = cleanTextStage2.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
-        // Attempt to remove trailing commas before closing braces/brackets.
-        cleanTextStage2 = cleanTextStage2.replace(/,\s*([}\]])/g, "$1")
-
-        parsedResponse = JSON.parse(cleanTextStage2)
+      if (cleanedText.endsWith("```")) {
+        cleanedText = cleanedText.substring(0, cleanedText.length - "```".length)
       }
+      cleanedText = cleanedText.trim() // Trim again after removing fences
+
+      // Attempt to parse the cleaned JSON
+      parsedResponse = JSON.parse(cleanedText)
 
       // Validate the response structure
       if (!parsedResponse.itinerary || !Array.isArray(parsedResponse.itinerary)) {
         throw new Error("Invalid itinerary structure in AI response after parsing.")
       }
     } catch (parseError: any) {
-      console.error("Failed to parse AI response after all cleaning attempts:", parseError)
-      console.error("Raw AI response:", rawText) // Log raw response for debugging
+      console.error("Failed to parse AI response:", parseError)
+      console.error("Raw AI response (for debugging):", rawText)
+      // Ensure cleanedText is defined before logging it
+      const cleanedTextForLog = cleanedText !== "undefined" ? cleanedText : "N/A (parsing failed before cleaning)"
+      console.error("Cleaned text attempted to parse (for debugging):", cleanedTextForLog)
 
-      // --- Attempt 3: Strict Prompt Regeneration ---
-      console.log("Attempting to regenerate with stricter JSON format...")
-
-      try {
-        const strictPrompt = `Generate ONLY valid JSON for a ${days}-day itinerary for ${destination}. No markdown, no text outside JSON. Use this exact format:
-{"itinerary":[{"day":1,"theme":"Day theme","activities":[{"time":"7:00 AM","activity":"Activity description","educational_value":"Learning outcome","cost":200,"duration":"2 hours"}]}],"total_estimated_cost":5000,"educational_highlights":["Highlight 1","Highlight 2"],"cultural_insights":["Insight 1","Insight 2"],"recommended_reading":["Book 1","Book 2"]}`
-
-        const strictResult = await model.generateContent(strictPrompt)
-        const strictText = strictResult.response.text()
-
-        // Minimal cleaning for strict response
-        const strictCleanText = strictText
-          .trim()
-          .replace(/```json\n?/g, "")
-          .replace(/```\n?/g, "")
-          .replace(/,\s*}/g, "}")
-          .replace(/,\s*]/g, "]")
-
-        parsedResponse = JSON.parse(strictCleanText)
-      } catch (strictError: any) {
-        console.error("Strict regeneration also failed:", strictError)
-        return NextResponse.json(
-          {
-            error: "Failed to generate valid itinerary. Please try again with different parameters.",
-            success: false,
-          },
-          { status: 500 },
-        )
-      }
+      return NextResponse.json(
+        {
+          error: "Failed to generate valid itinerary. The AI response was malformed. Please try again.",
+          success: false,
+        },
+        { status: 500 },
+      )
     }
 
     return NextResponse.json({

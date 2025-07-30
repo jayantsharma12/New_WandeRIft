@@ -27,10 +27,7 @@ export default async function TripDetailPage({ params }: { params: { id: string 
   const endDate = trip.end_date
     ? new Date(trip.end_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     : "N/A"
-  const formattedDates =
-  trip.start_date && trip.end_date
-    ? `${new Date(trip.start_date).toLocaleDateString()} - ${new Date(trip.end_date).toLocaleDateString()}`
-    : "N/A";
+  const formattedDates = trip.start_date && trip.end_date ? `${startDate} - ${endDate}` : "Dates TBD"
 
   return (
     <div className="min-h-screen bg-muted/50 py-8">

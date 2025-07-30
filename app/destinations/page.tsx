@@ -1,15 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import BookingModal from "@/components/booking-modal"; // Import the BookingModal
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, MapPin, Calendar, IndianRupee, Users, XCircle, CalendarDays } from "lucide-react" // Added CalendarDays
-import Link from "next/link"
-import Image from "next/image"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getTrips, type Trip } from "@/lib/data"
-import BookingModal from "@/components/booking-modal" // Import the BookingModal
 import { supabase } from "@/lib/supabase"
+import { Calendar, CalendarDays, IndianRupee, MapPin, Star, Users, XCircle } from "lucide-react"; // Added CalendarDays
+import Image from "next/image"
+import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function DestinationsPage() {
   const [allTrips, setAllTrips] = useState<Trip[]>([])
