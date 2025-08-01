@@ -8,8 +8,20 @@ export interface Review {
   comment: string
 }
 
+export interface WhatsIncludedItem {
+  id: number
+  trip_id: number
+  description: string
+  is_included: boolean
+}
+
+export interface TripHighlightItem {
+  id: number
+  trip_id: number
+  description: string
+}
+
 export interface Trip {
-  title: any
   id: number
   destination: string
   days: number
@@ -24,6 +36,13 @@ export interface Trip {
   start_date?: string
   end_date?: string
   reviews?: Review[]
+  // Database relationships
+  whats_included_items?: WhatsIncludedItem[]
+  trip_highlights_items?: TripHighlightItem[]
+  // Legacy fields for backward compatibility
+  highlights?: string[]
+  included?: string[]
+  title?: string
 }
 
 export interface PaymentMethod {
@@ -72,11 +91,28 @@ export async function getTrips(): Promise<Trip[]> {
 }
 
 /**
- * Fetches a single trip by ID from Supabase, including its reviews.
+ * Fetches a single trip by ID from Supabase, including its reviews, highlights, and included items.
  */
 export async function getTripById(id: number): Promise<Trip | null> {
   try {
-    const { data: tripData, error: tripError } = await supabase.from("trips").select("*").eq("id", id).single()
+    // Fetch trip data with related tables
+    const { data: tripData, error: tripError } = await supabase
+      .from("trips")
+      .select(`
+        *,
+        whats_included_items (
+          id,
+          description,
+          is_included
+        ),
+        trip_highlights_items (
+          id,
+          description
+        )
+      `)
+      .eq("id", id)
+      .single()
+
     if (tripError) {
       console.error(`Supabase error fetching trip with ID ${id}:`, tripError)
       console.error("Error message:", tripError.message)
@@ -91,7 +127,12 @@ export async function getTripById(id: number): Promise<Trip | null> {
       return null
     }
 
-    const { data: reviewsData, error: reviewsError } = await supabase.from("reviews").select("*").eq("trip_id", id)
+    // Fetch reviews separately
+    const { data: reviewsData, error: reviewsError } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("trip_id", id)
+
     if (reviewsError) {
       console.error(`Supabase error fetching reviews for trip ID ${id}:`, reviewsError)
       console.error("Error message:", reviewsError.message)
