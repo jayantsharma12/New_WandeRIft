@@ -3,11 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Calendar, DollarSign, Users, Star, XCircle, CalendarDays } from "lucide-react" // Added CalendarDays
+import { Calendar, DollarSign, Users, Star, XCircle, CalendarDays } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image" // Import Image component
-import { getTripById } from "@/lib/data" // Import getTripById and Trip type
-import BookingModal from "@/components/booking-modal" // Import the new BookingModal
+import Image from "next/image"
+import { getTripById } from "@/lib/data"
+import BookingModal from "@/components/booking-modal"
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal, AwaitedReactNode, Key } from "react"
 
 export default async function TripDetailPage({ params }: { params: { id: string } }) {
   const tripId = Number.parseInt(params.id)
@@ -57,7 +58,7 @@ export default async function TripDetailPage({ params }: { params: { id: string 
             {/* Hero Image */}
             <div className="relative h-64 w-full rounded-lg overflow-hidden">
               <Image
-                src={trip.image_url || "/placeholder.svg?height=256&width=600&text=Trip+Hero+Image"} // Use image_url or placeholder
+                src={trip.image_url || "/placeholder.svg?height=256&width=600&text=Trip+Hero+Image"}
                 alt={`Hero image for ${trip.destination}`}
                 fill
                 style={{ objectFit: "cover" }}
@@ -93,9 +94,9 @@ export default async function TripDetailPage({ params }: { params: { id: string 
                     <p className="font-semibold text-brand-black">{seatsLeft}</p>
                   </div>
                   <div className="text-center">
-                    <CalendarDays className="h-6 w-6 mx-auto mb-2 text-primary" /> {/* New: CalendarDays icon */}
-                    <p className="text-sm text-muted-foreground">Dates</p> {/* New: Dates label */}
-                    <p className="font-semibold text-brand-black">{formattedDates}</p> {/* New: Formatted dates */}
+                    <CalendarDays className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-sm text-muted-foreground">Dates</p>
+                    <p className="font-semibold text-brand-black">{formattedDates}</p>
                   </div>
                 </div>
               </CardContent>
@@ -199,10 +200,6 @@ export default async function TripDetailPage({ params }: { params: { id: string 
                   <Button variant="outline" className="w-full bg-transparent">
                     Add to Wishlist
                   </Button>
-
-                  <div className="text-center text-sm text-muted-foreground">
-                    <p>Free cancellation up to 24 hours before departure</p>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -214,24 +211,31 @@ export default async function TripDetailPage({ params }: { params: { id: string 
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {(trip.interests ?? []).map((interest, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full" />
-                      <span className="text-sm">{interest} activities included</span>
+                  {/* Check if trip.trip_highlights_items exists and has data */}
+                  {trip.trip_highlights_items && trip.trip_highlights_items.length > 0 ? (
+                    trip.trip_highlights_items.map((highlight: { description: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined }, index: Key | null | undefined) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-primary rounded-full" />
+                        <span className="text-sm">{highlight.description}</span>
+                      </div>
+                    ))
+                  ) : (
+                    // Fallback to trip.highlights if trip_highlights_items is not available
+                    (trip.highlights ?? []).map((highlight, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-primary rounded-full" />
+                        <span className="text-sm">{highlight}</span>
+                      </div>
+                    ))
+                  )}
+
+                  {/* Show message if no highlights available */}
+                  {(!trip.trip_highlights_items || trip.trip_highlights_items.length === 0) && 
+                   (!trip.highlights || trip.highlights.length === 0) && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      No highlights available for this trip.
                     </div>
-                  ))}
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full" />
-                    <span className="text-sm">Professional local guide</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full" />
-                    <span className="text-sm">All meals included</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full" />
-                    <span className="text-sm">Comfortable accommodation</span>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -243,34 +247,61 @@ export default async function TripDetailPage({ params }: { params: { id: string 
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-green-600">✓</span>
-                    <span>Accommodation ({trip.days - 1} nights)</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-green-600">✓</span>
-                    <span>All meals (breakfast, lunch, dinner)</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-green-600">✓</span>
-                    <span>Transportation</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-green-600">✓</span>
-                    <span>Professional guide</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-green-600">✓</span>
-                    <span>Entry fees to attractions</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-red-600">✗</span>
-                    <span>International flights</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-red-600">✗</span>
-                    <span>Travel insurance</span>
-                  </div>
+                  {/* Check if trip.whats_included_items exists and has data */}
+                  {trip.whats_included_items && trip.whats_included_items.length > 0 ? (
+                    trip.whats_included_items
+                      .filter((item: { is_included: any }) => item.is_included) // Only show included items
+                      .map((item: { description: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined }, index: Key | null | undefined) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <span className="text-green-600">✓</span>
+                          <span>{item.description}</span>
+                        </div>
+                      ))
+                  ) : (
+                    // Fallback to trip.included if whats_included_items is not available
+                    (trip.included ?? []).map((item, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <span className="text-green-600">✓</span>
+                        <span>{item}</span>
+                      </div>
+                    ))
+                  )}
+
+                  {/* Show excluded items if available */}
+                  {trip.whats_included_items && trip.whats_included_items.length > 0 && (
+                    <>
+                      {trip.whats_included_items
+                        .filter((item: { is_included: any }) => !item.is_included) // Only show excluded items
+                        .map((item: { description: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined }, index: any) => (
+                          <div key={`excluded-${index}`} className="flex items-center space-x-2">
+                            <span className="text-red-600">✗</span>
+                            <span>{item.description}</span>
+                          </div>
+                        ))}
+                    </>
+                  )}
+
+                  {/* Fallback exclusions if no database data */}
+                  {(!trip.whats_included_items || trip.whats_included_items.length === 0) && (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-red-600">✗</span>
+                        <span>International flights</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-red-600">✗</span>
+                        <span>Travel insurance</span>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Show message if no included/excluded items */}
+                  {(!trip.whats_included_items || trip.whats_included_items.length === 0) && 
+                   (!trip.included || trip.included.length === 0) && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      No inclusion details available for this trip.
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
