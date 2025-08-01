@@ -19,7 +19,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        elements: {
+          // Hide Clerk branding
+          footer: "hidden",
+          footerAction: "hidden",
+          footerActionLink: "hidden",
+          footerPages: "hidden",
+          // Optional: customize other elements to match your brand
+          card: "shadow-lg border-0",
+          headerTitle: "text-2xl font-bold text-brand-black",
+          headerSubtitle: "text-muted-foreground",
+          socialButtonsBlockButton: "border border-gray-300 hover:bg-gray-50",
+          formButtonPrimary: "bg-primary hover:bg-primary/90 text-primary-foreground",
+          formFieldInput: "border border-gray-300 rounded-md",
+        },
+        layout: {
+          // Additional layout customizations
+          showOptionalFields: false,
+          socialButtonsPlacement: "top",
+        },
+      }}
+    >
       <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
           <div className="min-h-screen flex flex-col">
