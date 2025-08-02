@@ -1,5 +1,6 @@
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
+import AIChatAssistant from "@/components/AIChatAssistant";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -48,6 +49,8 @@ export default function RootLayout({
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
+            {/* AI Chat Assistant - Available on all pages */}
+            <AIChatAssistant />
           </div>
         </body>
       </html>
